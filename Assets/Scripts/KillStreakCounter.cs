@@ -10,26 +10,57 @@ public class KillStreakCounter : MonoBehaviour
     private List<string> playerNamesWithSpaces = new List<string>();
 
     [SerializeField]
-    private GameObject playerInfoHolder;
+    private GameObject[] playerMainUIInfoHolder;
+    [SerializeField]
+    private GameObject[] wwMapParts;
+    [SerializeField]
+    private GameObject wwMapParent;
+    [SerializeField]
+    private GameObject[] quarryMapParts;
+    [SerializeField]
+    private GameObject quarryMapParent;
+    [SerializeField]
+    private GameObject domTeamColorFlash;
 
     [SerializeField]
-    private TextMeshProUGUI[] playerGameScoreTMP; // red 0, 1 | blue 2, 3
+    private GameObject[] payloadCartLights;
+    [SerializeField]
+    private GameObject payloadCartLightsHolder;
+
+    // red 0, 1 | blue 2, 3 || Fills out both main top scores then main scoreboard
+    [SerializeField]
+    private TextMeshProUGUI[] playerGameScoreTMP;
+    // red 0, 1 | blue 2, 3 || Fills out both main screen rosters and main scoreboard
+    [SerializeField]
+    private TextMeshProUGUI[] teamNamesTMP;
+
+    // all for main scoreboard... values are named numerically
+    // player names main scoreboard
+    [SerializeField]
+    private TextMeshProUGUI[] playerNamesScoreboardTMP;
+    [SerializeField]
+    private TextMeshProUGUI[] playerKillsTMP;
+    [SerializeField]
+    private TextMeshProUGUI[] playerDeathsTMP;
+    [SerializeField]
+    private TextMeshProUGUI[] playerKDTMP;
+    [SerializeField]
+    private TextMeshProUGUI[] playerHSTMP;
+    [SerializeField]
+    private TextMeshProUGUI[] playerKillsTotTMP;
+    [SerializeField]
+    private TextMeshProUGUI[] playerDeathsTotTMP;
+    [SerializeField]
+    private TextMeshProUGUI[] playerKDTotTMP;
+    [SerializeField]
+    private TextMeshProUGUI[] playerHSTotTMP;
+
+    [SerializeField]
+    private Transform[] verticalRosterHolder;
 
     private List<int> kTot = new List<int>();
     private List<int> dTot = new List<int>();
     private List<int> hTot = new List<int>();
-
-    public TextMeshProUGUI[] teamNamesTMP;
-    public TextMeshProUGUI[] playerNamesTMP;
-    public TextMeshProUGUI[] playerKillsTMP;
-    public TextMeshProUGUI[] playerDeathsTMP;
-    public TextMeshProUGUI[] playerKDTMP;
-    public TextMeshProUGUI[] playerHSTMP;
-    public TextMeshProUGUI[] playerKillsTotTMP;
-    public TextMeshProUGUI[] playerDeathsTotTMP;
-    public TextMeshProUGUI[] playerKDTotTMP;
-    public TextMeshProUGUI[] playerHSTotTMP;
-
 
     private List<bool> isNameInfoShowing = new List<bool>();
 
@@ -37,26 +68,27 @@ public class KillStreakCounter : MonoBehaviour
 
     private IEnumerator coroutinePInfo;
 
-
     [SerializeField]
-    private GameObject playerInfoHolderParent;
+    private Material m_blueBase;
     [SerializeField]
-    private GameObject playerEndScoreInfo;
-
-    [SerializeField]
-    private Material m_blueTopBorder;
-    [SerializeField]
-    private Material m_redTopBorder;
+    private Material m_redBase;
     [SerializeField]
     private Material m_concrete;
 
+    private Color c_teamBlue = new Color32(8, 135, 255, 255);
+    private Color c_teamRed = new Color32(240, 14, 52, 255);
 
 
-    [SerializeField]
-    private GameObject[] wwMapParts;
+    private bool isRedCountDown = false;
+    private bool isBlueCountDown = false;
 
     public void Start()
     {
+        payloadCartLightsHolder.SetActive(false);
+        wwMapParent.SetActive(false);
+        quarryMapParent.SetActive(false);
+        domTeamColorFlash.SetActive(false);
+
         for (int i = 0; i < 4; i++)
         {
             playerGameScoreTMP[i].text = "0";
@@ -85,6 +117,22 @@ public class KillStreakCounter : MonoBehaviour
         {
             UpdateData();
         }
+
+        if (isBlueCountDown)
+        {
+            domTeamColorFlash.gameObject.SetActive(true);
+            domTeamColorFlash.GetComponent<Image>().color = c_teamBlue;
+        }
+        if (isRedCountDown)
+        {
+            domTeamColorFlash.gameObject.SetActive(true);
+            domTeamColorFlash.GetComponent<Image>().color = c_teamRed;
+        }
+
+        if (!isBlueCountDown && !isRedCountDown)
+        {
+            domTeamColorFlash.gameObject.SetActive(false);
+        }
     }
 
     public void UpdateData()
@@ -102,11 +150,13 @@ public class KillStreakCounter : MonoBehaviour
                 if (i < 5)
                 {
                     teamNamesTMP[0].text = splitNames[0];
+                    teamNamesTMP[1].text = splitNames[0];
                 }
                 // blue team
                 else
                 {
-                    teamNamesTMP[1].text = splitNames[0];
+                    teamNamesTMP[2].text = splitNames[0];
+                    teamNamesTMP[3].text = splitNames[0];
                 }
 
                 // [name with spaces] setup
@@ -137,8 +187,9 @@ public class KillStreakCounter : MonoBehaviour
         if (SocketServer.staticIsPayload)
         {
             SocketServer.staticIsDomination = false;
+            wwMapParent.SetActive(false);
             SocketServer.staticIsCP = false;
-
+            payloadCartLightsHolder.SetActive(true);
             // Red top score
             playerGameScoreTMP[0].text = SocketServer.staticRedPercent.ToString();
             // End value red
@@ -147,12 +198,56 @@ public class KillStreakCounter : MonoBehaviour
             playerGameScoreTMP[2].text = SocketServer.staticBluePercent.ToString();
             // End value blue
             playerGameScoreTMP[3].text = SocketServer.staticBluePercent.ToString();
+
+
+            if (SocketServer.staticPlayerOnCart == 0)
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    payloadCartLights[i].GetComponent<Image>().color = Color.black;
+                }
+            }
+            if (SocketServer.staticPlayerOnCart == 1)
+            {
+                payloadCartLights[0].GetComponent<Image>().color = Color.white;
+                payloadCartLights[1].GetComponent<Image>().color = Color.black;
+                payloadCartLights[2].GetComponent<Image>().color = Color.black;
+            }
+            if (SocketServer.staticPlayerOnCart == 2)
+            {
+                for (int i = 0; i < 2; i++)
+                {
+                    payloadCartLights[i].GetComponent<Image>().color = Color.white;
+                }
+                payloadCartLights[2].GetComponent<Image>().color = Color.black;
+            }
+            if (SocketServer.staticPlayerOnCart == 3)
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    payloadCartLights[i].GetComponent<Image>().color = Color.white;
+                }
+            }
+
         }
 
         if (SocketServer.staticIsDomination)
         {
+            if (SocketServer.staticMapName == "Waterway")
+            {
+                wwMapParent.SetActive(true);
+                quarryMapParent.SetActive(false);
+            }
+            if (SocketServer.staticMapName == "Quarry")
+            {
+                quarryMapParent.SetActive(true);
+                wwMapParent.SetActive(false);
+
+            }
+
             SocketServer.staticIsCP = false;
             SocketServer.staticIsPayload = false;
+            payloadCartLightsHolder.SetActive(false);
 
             // Red top score
             playerGameScoreTMP[0].text = SocketServer.staticRedPointDom.ToString();
@@ -163,27 +258,73 @@ public class KillStreakCounter : MonoBehaviour
             // End value blue
             playerGameScoreTMP[3].text = SocketServer.staticBluePointDom.ToString();
 
+            int domButtonCountRed = 0;
+            int domButtonCountBlue = 0;
             // need to add a toggle to switch between waterway and quarry
             for (int j = 0; j < 3; j++)
             {
-                if (SocketServer.buttonInfoTeams[j] == -1)
+                if (wwMapParent.activeInHierarchy == true)
                 {
-                    wwMapParts[j].gameObject.GetComponent<MeshRenderer>().material = m_concrete;
+                    if (SocketServer.buttonInfoTeams[j] == -1)
+                    {
+                        isRedCountDown = false;
+                        isBlueCountDown = false;
+
+                        wwMapParts[j].gameObject.GetComponent<MeshRenderer>().material = m_concrete;
+                    }
+                    if (SocketServer.buttonInfoTeams[j] == 0)
+                    {
+                        isBlueCountDown = false;
+                        wwMapParts[j].gameObject.GetComponent<MeshRenderer>().material.color = c_teamRed;
+                        domButtonCountRed++;
+                    }
+                    if (SocketServer.buttonInfoTeams[j] == 1)
+                    {
+                        isRedCountDown = false;
+                        wwMapParts[j].gameObject.GetComponent<MeshRenderer>().material.color = c_teamBlue;
+                        domButtonCountBlue++;
+                    }
                 }
-                if (SocketServer.buttonInfoTeams[j] == 0)
+                if (quarryMapParent.activeInHierarchy == true)
                 {
-                    wwMapParts[j].gameObject.GetComponent<MeshRenderer>().material.color = Color.red;
+                    if (SocketServer.buttonInfoTeams[j] == -1)
+                    {
+                        isRedCountDown = false;
+                        isBlueCountDown = false;
+
+                        quarryMapParts[j].gameObject.GetComponent<MeshRenderer>().material = m_concrete;
+                    }
+                    if (SocketServer.buttonInfoTeams[j] == 0)
+                    {
+                        isBlueCountDown = false;
+                        quarryMapParts[j].gameObject.GetComponent<MeshRenderer>().material.color = c_teamRed;
+                        domButtonCountRed++;
+                    }
+                    if (SocketServer.buttonInfoTeams[j] == 1)
+                    {
+                        isRedCountDown = false;
+                        quarryMapParts[j].gameObject.GetComponent<MeshRenderer>().material.color = c_teamBlue;
+                        domButtonCountBlue++;
+                    }
                 }
-                if (SocketServer.buttonInfoTeams[j] == 1)
+
+                if (domButtonCountRed == 3)
                 {
-                    wwMapParts[j].gameObject.GetComponent<MeshRenderer>().material.color = Color.blue;
+                    isRedCountDown = true;
+                }
+                if (domButtonCountBlue == 3)
+                {
+                    isBlueCountDown = true;
                 }
             }
         }
         if (SocketServer.staticIsCP)
         {
             SocketServer.staticIsPayload = false;
+            payloadCartLightsHolder.SetActive(false);
             SocketServer.staticIsDomination = false;
+            wwMapParent.SetActive(false);
+      
 
             // Red top score
             playerGameScoreTMP[0].text = SocketServer.staticRedPointCp.ToString();
@@ -201,7 +342,7 @@ public class KillStreakCounter : MonoBehaviour
             if (SocketServer.staticTeamList[i] == 0)
             {
                 // sets up a coroutine to spawn the main overlay roster info            
-                coroutinePInfo = SpawnPInfo(i, Color.red, 2f);
+                coroutinePInfo = SpawnPInfo(i, Color.red, 2f, 0);
 
                 // sum up kills, deaths, hs for the team scoreboard
                 kTot[0] += SocketServer.staticPlayerKillList[i];
@@ -215,7 +356,7 @@ public class KillStreakCounter : MonoBehaviour
             // Same thing as above just for the blue team
             if (SocketServer.staticTeamList[i] == 1)
             {
-                coroutinePInfo = SpawnPInfo(i, Color.blue, 2f);
+                coroutinePInfo = SpawnPInfo(i, Color.blue, 2f, 1);
 
                 kTot[1] += SocketServer.staticPlayerKillList[i];
                 dTot[1] += SocketServer.staticPlayerDeathList[i];
@@ -225,7 +366,7 @@ public class KillStreakCounter : MonoBehaviour
             }
 
             //playerKDTMP[i].text = "0";
-            playerNamesTMP[i].text = playerNamesWithSpaces[i];
+            playerNamesScoreboardTMP[i].text = playerNamesWithSpaces[i];
             playerKillsTMP[i].text = SocketServer.staticPlayerKillList[i].ToString();
             playerDeathsTMP[i].text = SocketServer.staticPlayerDeathList[i].ToString();
             playerHSTMP[i].text = SocketServer.staticHeadShotCounter[i].ToString();
@@ -268,10 +409,10 @@ public class KillStreakCounter : MonoBehaviour
     }
 
     // Populate player info for main screen rosters and top screen scoreboard. 
-    IEnumerator SpawnPInfo(int i, Color _topBorder, float _waitTime)
+    IEnumerator SpawnPInfo(int i, Color _topBorder, float _waitTime, int _team)
     {
 
-        foreach (Transform child in playerInfoHolderParent.transform)
+        foreach (Transform child in verticalRosterHolder[_team])
         {
             if (child.name == ("pInfo_" + i.ToString()))
             {
@@ -285,20 +426,33 @@ public class KillStreakCounter : MonoBehaviour
         }
         else
         {
-            GameObject pInfo = Instantiate(playerInfoHolder, playerInfoHolderParent.transform);
+            GameObject pInfo = Instantiate(playerMainUIInfoHolder[_team], verticalRosterHolder[_team]);
             pInfo.name = "pInfo_" + i.ToString();
-            pInfo.transform.GetChild(0).GetComponent<Image>().color = _topBorder;
+            if (_team == 0)
+            {
+                //pInfo.transform.GetChild(0).GetComponent<Image>().material = m_redRosterBackground;
 
-            pInfo.transform.GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>().text = SocketServer.staticPlayerNamesList[i];
-            pInfo.transform.GetChild(0).GetChild(1).GetChild(1).GetComponent<TextMeshProUGUI>().text = SocketServer.staticPlayerKillList[i].ToString();
-            pInfo.transform.GetChild(0).GetChild(1).GetChild(3).GetComponent<TextMeshProUGUI>().text = SocketServer.staticPlayerDeathList[i].ToString();
-            pInfo.transform.GetChild(0).GetChild(1).GetChild(5).GetComponent<TextMeshProUGUI>().text = SocketServer.staticHeadShotCounter[i].ToString();
+                pInfo.transform.GetChild(0).GetChild(7).GetComponent<TextMeshProUGUI>().text = playerNamesWithSpaces[i];
+                pInfo.transform.GetChild(0).GetChild(3).GetComponent<TextMeshProUGUI>().text = SocketServer.staticPlayerKillList[i].ToString();
+                pInfo.transform.GetChild(0).GetChild(6).GetComponent<TextMeshProUGUI>().text = SocketServer.staticPlayerDeathList[i].ToString();
+                //pInfo.transform.GetChild(0).GetChild(1)..GetComponent<TextMeshProUGUI>().text = SocketServer.staticHeadShotCounter[i].ToString();
+            }
+            else
+            {
+                //pInfo.transform.GetChild(0).GetComponent<Image>().material = m_blueRosterBackground;
+
+                pInfo.transform.GetChild(0).GetChild(1).GetComponent<TextMeshProUGUI>().text = playerNamesWithSpaces[i];
+                pInfo.transform.GetChild(0).GetChild(4).GetComponent<TextMeshProUGUI>().text = SocketServer.staticPlayerKillList[i].ToString();
+                pInfo.transform.GetChild(0).GetChild(7).GetComponent<TextMeshProUGUI>().text = SocketServer.staticPlayerDeathList[i].ToString();
+                //pInfo.transform.GetChild(0).GetChild(1)..GetComponent<TextMeshProUGUI>().text = SocketServer.staticHeadShotCounter[i].ToString();
+            }
 
             yield return new WaitForSeconds(_waitTime);
             Destroy(pInfo);
             isNameInfoShowing[i] = false;
 
-            // below is setup for the horizontal names list for prefab P_namesColorTop
+            // below is somewhat setup for the horizontal names list for prefab P_namesColorTop
+
             //GameObject pInfo = Instantiate(playerInfoHolder, playerInfoHolderParent.transform);
             //pInfo.name = "pInfo_" + i.ToString();
             //pInfo.transform.GetChild(0).GetComponent<Image>().color = _topBorder;
@@ -313,6 +467,7 @@ public class KillStreakCounter : MonoBehaviour
             //isNameInfoShowing[i] = false;
         }
     }
+
 
     public void ResetNameInfo()
     {

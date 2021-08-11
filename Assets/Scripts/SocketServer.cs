@@ -28,6 +28,7 @@ public class SocketServer : MonoBehaviour
 
     public static string[] staticPlayerNamesList = { "name", "name", "name", "name", "name", "name", "name", "name", "name", "name" };
     public static string[] staticVictumKiller = { "name", "name" };
+    public static string staticMapName = "map";
 
     public static List<string> jsonOut = new List<string>();
 
@@ -279,6 +280,8 @@ public class SocketServer : MonoBehaviour
 
                 staticBluePointDom = data.Data.BlueScore;
                 staticRedPointDom = data.Data.RedScore;
+                staticMapName = data.Data.MapName;
+                Debug.Log("Map name = " + data.Data.MapName);
 
                 //for (int i = 0; i < data.Data.ButtonInfo.Team.Length; i++)
                 //{
