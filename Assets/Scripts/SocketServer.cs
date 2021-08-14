@@ -17,9 +17,13 @@ public class SocketServer : MonoBehaviour
     private byte[] reciveBuffer;
     private int bufferSize = 4096;
 
+    
+
     public static bool staticIsHeadshot = false;
     public static bool staticKillHappened = false;
     public static bool staticReadingData = false;
+    
+    //TODO Make this a enum
     public static bool staticIsPayload = false;
     public static bool staticIsDomination = false;
     public static bool staticIsCP = false;
@@ -108,11 +112,6 @@ public class SocketServer : MonoBehaviour
         _tcpServer = new TcpListener(IPAddress.Parse("127.0.0.1"), 3333);
         _tcpServer.Start();
         _tcpServer.BeginAcceptTcpClient(TcpConnectionCallback, null);
-
-
-        //var thing = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        // thing.transform.position = Vector3.zero;
-
     }
 
     // I HATE C# CALLBACKS WHYYYYYYYYYYYY this is so dumb
@@ -170,8 +169,6 @@ public class SocketServer : MonoBehaviour
             dataInspector = JsonConvert.DeserializeObject<Root>(convertedData);
             jsonOut.Add(convertedData);
             dataREADER(dataInspector);
-
-
         }
     }
 
@@ -180,6 +177,8 @@ public class SocketServer : MonoBehaviour
     {
         Debug.Log("reading data");
         staticReadingData = true;
+        
+        // TODO make these separte functions. persenol preffrents 
         switch (data.Type)
         {
             case "Dead":
@@ -192,6 +191,9 @@ public class SocketServer : MonoBehaviour
                 staticIsHeadshot = data.Data.HeadShot;
                 staticGunKillInt = data.Data.WeaponsType;
                 //Debug.Log(data.Data.Killer + " Killed " + data.Data.Victum + " with a " + data.Data.WeaponsType.ToString());
+                
+                //TODO When somone diede call a event
+                
                 // Have name, need to add a point. 
                 for (int i = 0; i < staticPlayerNamesList.Length; i++)
                 {
@@ -260,7 +262,6 @@ public class SocketServer : MonoBehaviour
                     staticPlayerKillList[j] = data.Data.Kills[j];
                     staticPlayerDeathList[j] = data.Data.Deaths[j];
                     staticTeamList[j] = data.Data.Teams[j];
- 
                 }
                 break;
             case "Payload":

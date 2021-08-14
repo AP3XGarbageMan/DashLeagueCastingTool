@@ -434,7 +434,9 @@ public class KillStreakCounter : MonoBehaviour
     // Populate player info for main screen rosters and top screen scoreboard. 
     IEnumerator SpawnPInfo(int i, Color _topBorder, float _waitTime, int _team)
     {
-
+        //TODO Don't spawn new holders every 2 sec change the info on holder
+        //TODO When we get new info from the socketstreamer we should update (event)
+        
         foreach (Transform child in verticalRosterHolder[_team])
         {
             if (child.name == ("pInfo_R_" + i.ToString()) || child.name == ("pInfo_B_" + i.ToString()))
