@@ -17,17 +17,17 @@ public class SocketServer : MonoBehaviour
     private byte[] reciveBuffer;
     private int bufferSize = 4096;
 
-    
+
 
     public static bool staticIsHeadshot = false;
     public static bool staticKillHappened = false;
     public static bool staticReadingData = false;
-    
+
     //TODO Make this a enum
     public static bool staticIsPayload = false;
     public static bool staticIsDomination = false;
     public static bool staticIsCP = false;
-    
+
     public static bool[] staticHolding = { false, false, false };
 
     public static string[] staticPlayerNamesList = { "name", "name", "name", "name", "name", "name", "name", "name", "name", "name" };
@@ -53,17 +53,18 @@ public class SocketServer : MonoBehaviour
     public static int staticRedPointDom = 0;
     public static int staticBluePointDom = 0;
     public static int staticRedPointCp = 0;
-    public static int staticBluePointCp = 0; 
+    public static int staticBluePointCp = 0;
 
     public static float[] totalTeamKD = { 0, 0 };
 
     [SerializeField] private Root dataInspector;
     private Dictionary<string, Vector3> _playerposAsLastSeen = new Dictionary<string, Vector3>();
     public static Dictionary<string, Vector3> playerPositions = new Dictionary<string, Vector3>();
-    public static string[] ppArray;   
+    public static string[] ppArray;
     private Dictionary<int, string> _indexToPlayername = new Dictionary<int, string>();
 
-
+    private ScoreBoardManager sbm = new ScoreBoardManager();
+    private KillFeed kf = new KillFeed();
 
     //public static float timeStamp;
     //public string filePath = "";
@@ -168,148 +169,127 @@ public class SocketServer : MonoBehaviour
 
             dataInspector = JsonConvert.DeserializeObject<Root>(convertedData);
             jsonOut.Add(convertedData);
-            dataREADER(dataInspector);
+            dataReader(dataInspector);
+
         }
     }
 
-
-    void dataREADER(Root data)
+    void dataReader(Root data)
     {
-        Debug.Log("reading data");
-        staticReadingData = true;
-        
-        // TODO make these separte functions. persenol preffrents 
         switch (data.Type)
         {
             case "Dead":
-                //Debug.Log(data.Type);
-                // victum, killer
-                staticVictumKiller[0] = data.Data.Victum;
-                //Debug.Log("Killer = " + staticVictumKiller[1]);
-                staticVictumKiller[1] = data.Data.Killer;
-                //Debug.Log("Victum = " + staticVictumKiller[0]);
-                staticIsHeadshot = data.Data.HeadShot;
-                staticGunKillInt = data.Data.WeaponsType;
-                //Debug.Log(data.Data.Killer + " Killed " + data.Data.Victum + " with a " + data.Data.WeaponsType.ToString());
-                
-                //TODO When somone diede call a event
-                
-                // Have name, need to add a point. 
-                for (int i = 0; i < staticPlayerNamesList.Length; i++)
-                {
-                    if (staticPlayerNamesList[i] == data.Data.Killer)
-                    {
-                        if (data.Data.HeadShot)
-                        {
-                            staticHeadShotCounter[i]++;
-                            if (staticTeamList[i] == 0)
-                            {
-                                // add one to red
-                                totalTeamsHS[0]++;
-                            }
-                            else
-                            {
-                                // add one to blue
-                                totalTeamsHS[1]++;
-                            }
-                        }
-
-                        if (staticTeamList[i] == 0)
-                        {
-                            totalTeamKills[0]++;
-                        }
-                        if (staticTeamList[i] == 1)
-                        {
-                            totalTeamKills[1]++;
-                        }
-                    }
-                    if (staticPlayerNamesList[i] == data.Data.Victum)
-                    {
-                        if (staticTeamList[i] == 0)
-                        {
-                            totalTeamDeaths[0]++;
-                        }
-                        if (staticTeamList[i] == 1)
-                        {
-                            totalTeamDeaths[1]++;
-                        }
-                    }
-                }
-
-
-
-                staticKillHappened = true;
-
+                dataReaderDead(data, kf);
                 break;
-            case "PP":
-                //Debug.Log(data.Type);
-                //if (_indexToPlayername.Count == 0) return;
-
-                for (var j = 0; j < data.Data.FeetPos.X.Length; j++)
-                {
-                    playerPositions.Add(SocketServer.staticPlayerNamesList[j], new Vector3(data.Data.FeetPos.X[j], data.Data.FeetPos.Y[j], data.Data.FeetPos.Z[j]));
-                }
-
-                //_playerposAsLastSeen[_indexToPlayername[i]] = new Vector3(data.Data.FeetPos.X[i], data.Data.FeetPos.Y[i], data.Data.FeetPos.Z[i]);
-
-                break;
-            case "ScoreBoard":
-                //Debug.Log(data.Type);
-
-                for (int j = 0; j < data.Data.Names.Length; j++)
-                {
-                    staticPlayerNamesList[j] = data.Data.Names[j];
-                    staticPlayerKillList[j] = data.Data.Kills[j];
-                    staticPlayerDeathList[j] = data.Data.Deaths[j];
-                    staticTeamList[j] = data.Data.Teams[j];
-                }
+            //case "PP":
+            //    dataReaderPP(data);
+            //    break;
+            case "Domination":
+                dataReaderDomination(data);
                 break;
             case "Payload":
-                staticIsPayload = true;
-                staticBluePercent = data.Data.BluePercent;
-                staticRedPercent = data.Data.RedPercent;
-                staticPlayerOnCart = data.Data.PlayersOnCart;
-                //Debug.Log("Blue percent = " + staticBluePercent.ToString() );
+                dataReaderPayload(data);
                 break;
-            case "Domination":
-                // Debug.Log("type = " + data.Type);
-                staticIsDomination = true;
-                int bcount = data.Data.ButtonInfo.Count;
-                // Debug.Log("buttonInfo count = " + bcount.ToString());
-
-                for (int i = 0; i < 3; i++)
-                {
-                    buttonInfoTeams[i] = data.Data.ButtonInfo[i].Team;
-                }
-
-                staticBluePointDom = data.Data.BlueScore;
-                staticRedPointDom = data.Data.RedScore;
-                staticMapName = data.Data.MapName;
-                Debug.Log("Map name = " + data.Data.MapName);
-
-                //for (int i = 0; i < data.Data.ButtonInfo.Team.Length; i++)
-                //{
-                //    staticTeamButton[i] = data.Data.ButtonInfo.Team[i];
-                //    staticHolding[i] = data.Data.ButtonInfo.Holding[i];
-                //    Debug.Log("Team button info = " + staticTeamButton[i].ToString());
-                //    Debug.Log("Team holding button = " + staticHolding[i].ToString());
-                //}
+            case "ScoreBoard":
+                dataReaderScoreboard(data, kf, sbm);
                 break;
             case "Controll":
-                Debug.Log("type = " + data.Type);
-                staticIsCP = true;
-
-                staticRedPointCp = data.Data.RedScore;
-                staticBluePointCp = data.Data.BlueScore;
-
-                //for (int i = 0; i < data.Data.ButtonInfo.Team.Length; i++)
-                //{
-                //    staticTeamButton[i] = data.Data.ButtonInfo.Team[i];
-                //    staticHolding[i] = data.Data.ButtonInfo.Holding[i];
-                //    Debug.Log("Team button info = " + staticTeamButton[i].ToString());
-                //    Debug.Log("Team holding button = " + staticHolding[i].ToString());
-                //}
+                dataReaderControlPoint(data);
                 break;
         }
     }
+
+    void dataReaderDead(Root data, KillFeed _kf)
+    {
+        Debug.Log("Data type is " + data.Type + " should be running Dead if it is Dead");
+        
+        if (data.Type == "Dead")
+        {
+            _kf.SpawnKF(data);
+        }
+    }
+
+    void dataReaderDomination(Root data)
+    {
+        //if (data.Type == "Domination")
+        //{
+
+        //    // Debug.Log("type = " + data.Type);
+        //    staticIsDomination = true;
+        //    int bcount = data.Data.ButtonInfo.Count;
+        //    // Debug.Log("buttonInfo count = " + bcount.ToString());
+
+        //    for (int i = 0; i < 3; i++)
+        //    {
+        //        buttonInfoTeams[i] = data.Data.ButtonInfo[i].Team;
+        //    }
+
+        //    staticBluePointDom = data.Data.BlueScore;
+        //    staticRedPointDom = data.Data.RedScore;
+        //    staticMapName = data.Data.MapName;
+        //    Debug.Log("Map name = " + data.Data.MapName);
+
+        //    //for (int i = 0; i < data.Data.ButtonInfo.Team.Length; i++)
+        //    //{
+        //    //    staticTeamButton[i] = data.Data.ButtonInfo.Team[i];
+        //    //    staticHolding[i] = data.Data.ButtonInfo.Holding[i];
+        //    //    Debug.Log("Team button info = " + staticTeamButton[i].ToString());
+        //    //    Debug.Log("Team holding button = " + staticHolding[i].ToString());
+        //    //}
+        //}
+    }
+
+    void dataReaderPayload(Root data)
+    {
+        //if (data.Type == "Payload")
+        //{
+        //    staticIsPayload = true;
+        //    staticBluePercent = data.Data.BluePercent;
+        //    staticRedPercent = data.Data.RedPercent;
+        //    staticPlayerOnCart = data.Data.PlayersOnCart;
+        //    //Debug.Log("Blue percent = " + staticBluePercent.ToString() );
+        //}
+    }
+
+    void dataReaderScoreboard(Root data, KillFeed _kf, ScoreBoardManager _sbm)
+    {
+        Debug.Log("made it to data reader scoreboard");
+        _kf.GetSBEvent(data);
+        _sbm.GetSBEvent(data);
+    }
+
+    //void dataReaderPP(Root data)
+    //{
+    //    if (data.Type == "PP")
+    //    {
+    //        for (var j = 0; j < data.Data.FeetPos.X.Length; j++)
+    //        {
+    //            playerPositions.Add(SocketServer.staticPlayerNamesList[j], new Vector3(data.Data.FeetPos.X[j], data.Data.FeetPos.Y[j], data.Data.FeetPos.Z[j]));
+    //        }
+
+    //        //_playerposAsLastSeen[_indexToPlayername[i]] = new Vector3(data.Data.FeetPos.X[i], data.Data.FeetPos.Y[i], data.Data.FeetPos.Z[i]);
+    //    }
+    //}
+
+    void dataReaderControlPoint(Root data)
+    {
+        //if (data.Type == "Controll")
+        //{
+        //    Debug.Log("type = " + data.Type);
+        //    staticIsCP = true;
+
+        //    staticRedPointCp = data.Data.RedScore;
+        //    staticBluePointCp = data.Data.BlueScore;
+
+        //    //for (int i = 0; i < data.Data.ButtonInfo.Team.Length; i++)
+        //    //{
+        //    //    staticTeamButton[i] = data.Data.ButtonInfo.Team[i];
+        //    //    staticHolding[i] = data.Data.ButtonInfo.Holding[i];
+        //    //    Debug.Log("Team button info = " + staticTeamButton[i].ToString());
+        //    //    Debug.Log("Team holding button = " + staticHolding[i].ToString());
+        //    //}
+
+        //}
+    }
 }
+

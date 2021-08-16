@@ -9,8 +9,7 @@ public class KillStreakCounter : MonoBehaviour
 {
     private List<string> playerNamesWithSpaces = new List<string>();
 
-    [SerializeField]
-    private GameObject[] playerMainUIInfoHolder;
+
     [SerializeField]
     private GameObject[] wwMapParts;
     [SerializeField]
@@ -36,16 +35,8 @@ public class KillStreakCounter : MonoBehaviour
 
     // all for main scoreboard... values are named numerically
     // player names main scoreboard
-    [SerializeField]
-    private TextMeshProUGUI[] playerNamesScoreboardTMP;
-    [SerializeField]
-    private TextMeshProUGUI[] playerKillsTMP;
-    [SerializeField]
-    private TextMeshProUGUI[] playerDeathsTMP;
-    [SerializeField]
-    private TextMeshProUGUI[] playerKDTMP;
-    [SerializeField]
-    private TextMeshProUGUI[] playerHSTMP;
+
+
     [SerializeField]
     private TextMeshProUGUI[] playerKillsTotTMP;
     [SerializeField]
@@ -55,18 +46,17 @@ public class KillStreakCounter : MonoBehaviour
     [SerializeField]
     private TextMeshProUGUI[] playerHSTotTMP;
 
-    [SerializeField]
-    private Transform[] verticalRosterHolder;
+
 
     private List<int> kTot = new List<int>();
     private List<int> dTot = new List<int>();
     private List<int> hTot = new List<int>();
 
-    private List<bool> isNameInfoShowing = new List<bool>();
+
 
     public string[] cutTeamNames;
 
-    private IEnumerator coroutinePInfo;
+
 
     [SerializeField]
     private Material m_blueBase;
@@ -106,10 +96,6 @@ public class KillStreakCounter : MonoBehaviour
         {
             playerNamesWithSpaces.Add("not name");
         }
-        for (int i = 0; i < 10; i++)
-        {
-            isNameInfoShowing.Add(false);
-        }
         for (int i = 0; i < 2; i++)
         {
             kTot.Add(0);
@@ -144,58 +130,7 @@ public class KillStreakCounter : MonoBehaviour
 
     public void UpdateData()
     {
-        // setup player names
-        for (int i = 0; i < SocketServer.staticPlayerNamesList.Length; i++)
-        {
-            // setup for [team] [name name]
-            string[] splitNames = SocketServer.staticPlayerNamesList[i].Split();
 
-            if (splitNames.Length > 1)
-            {
-                if (payloadSwitchToggle.isOn)
-                {
-                    if (i < 5)
-                    {
-                        teamNamesTMP[2].text = splitNames[0];
-                        teamNamesTMP[3].text = splitNames[0];
-                    }
-                    // blue team
-                    if (i > 4)
-                    {
-                        teamNamesTMP[0].text = splitNames[0];
-                        teamNamesTMP[1].text = splitNames[0];
-                    }
-                }
-                else
-                {
-                    // [team] setup
-                    // red team
-                    if (i < 5)
-                    {
-                        teamNamesTMP[0].text = splitNames[0];
-                        teamNamesTMP[1].text = splitNames[0];
-                    }
-                    // blue team
-                    if (i > 4)
-                    {
-                        teamNamesTMP[2].text = splitNames[0];
-                        teamNamesTMP[3].text = splitNames[0];
-                    }
-                }
-                // [name with spaces] setup
-                string nameWithSpaces = "";
-                for (int j = 1; j < splitNames.Length; j++)
-                {
-                    nameWithSpaces += splitNames[j];
-                }
-
-                playerNamesWithSpaces[i] = nameWithSpaces;
-            }
-            else
-            {
-                playerNamesWithSpaces[i] = SocketServer.staticPlayerNamesList[i];
-            }
-        }
 
         // clear kill, death, headshot counters
         for (int i = 0; i < 2; i++)
@@ -359,54 +294,7 @@ public class KillStreakCounter : MonoBehaviour
             playerGameScoreTMP[3].text = SocketServer.staticBluePointCp.ToString();
         }
 
-        // calculate team K, D, HS
-        for (int i = 0; i < SocketServer.staticPlayerNamesList.Length; i++)
-        {
-            if (SocketServer.staticTeamList[i] == 0)
-            {
-                // sets up a coroutine to spawn the main overlay roster info            
-                coroutinePInfo = SpawnPInfo(i, Color.red, 2f, 0);
 
-                // sum up kills, deaths, hs for the team scoreboard
-                kTot[0] += SocketServer.staticPlayerKillList[i];
-                dTot[0] += SocketServer.staticPlayerDeathList[i];
-                hTot[0] += SocketServer.staticHeadShotCounter[i];
-
-                // display main roster info on screen
-                StartCoroutine(coroutinePInfo);
-            }
-
-            // Same thing as above just for the blue team
-            if (SocketServer.staticTeamList[i] == 1)
-            {
-                coroutinePInfo = SpawnPInfo(i, Color.blue, 2f, 1);
-
-                kTot[1] += SocketServer.staticPlayerKillList[i];
-                dTot[1] += SocketServer.staticPlayerDeathList[i];
-                hTot[1] += SocketServer.staticHeadShotCounter[i];
-
-                StartCoroutine(coroutinePInfo);
-            }
-
-            //playerKDTMP[i].text = "0";
-            playerNamesScoreboardTMP[i].text = playerNamesWithSpaces[i];
-            playerKillsTMP[i].text = SocketServer.staticPlayerKillList[i].ToString();
-            playerDeathsTMP[i].text = SocketServer.staticPlayerDeathList[i].ToString();
-            playerHSTMP[i].text = SocketServer.staticHeadShotCounter[i].ToString();
-
-            if (SocketServer.staticPlayerKillList[i] != 0 && SocketServer.staticPlayerDeathList[i] != 0)
-            {
-                float k = SocketServer.staticPlayerKillList[i];
-                float d = SocketServer.staticPlayerDeathList[i];
-                float killf = (k / d);
-
-                playerKDTMP[i].text = killf.ToString("0.0");
-            }
-            else
-            {
-                playerKDTMP[i].text = "0";
-            }
-        }
 
 
         for (int i = 0; i < 2; i++)
@@ -431,79 +319,13 @@ public class KillStreakCounter : MonoBehaviour
         }
     }
 
-    // Populate player info for main screen rosters and top screen scoreboard. 
-    IEnumerator SpawnPInfo(int i, Color _topBorder, float _waitTime, int _team)
-    {
-        //TODO Don't spawn new holders every 2 sec change the info on holder
-        //TODO When we get new info from the socketstreamer we should update (event)
-        
-        foreach (Transform child in verticalRosterHolder[_team])
-        {
-            if (child.name == ("pInfo_R_" + i.ToString()) || child.name == ("pInfo_B_" + i.ToString()))
-            {
-                isNameInfoShowing[i] = true;
-            }
-        }
 
-        if (isNameInfoShowing[i])
-        {
-            //Debug.Log("already showing");
-        }
-        else
-        {
-            GameObject pInfo = Instantiate(playerMainUIInfoHolder[_team], verticalRosterHolder[_team]);
 
-            if (KillFeed.isDead[i])
-            {
-                pInfo.transform.GetChild(1).gameObject.SetActive(true);
-            }
-
-            pInfo.name = "pInfo_R" + i.ToString();
-            if (_team == 0)
-            {
-                //pInfo.transform.GetChild(0).GetComponent<Image>().material = m_redRosterBackground;
-                pInfo.name = "pInfo_R_" + i.ToString();
-                pInfo.transform.GetChild(0).GetChild(7).GetComponent<TextMeshProUGUI>().text = playerNamesWithSpaces[i];
-                pInfo.transform.GetChild(0).GetChild(3).GetComponent<TextMeshProUGUI>().text = SocketServer.staticPlayerKillList[i].ToString();
-                pInfo.transform.GetChild(0).GetChild(6).GetComponent<TextMeshProUGUI>().text = SocketServer.staticPlayerDeathList[i].ToString();
-                //pInfo.transform.GetChild(0).GetChild(1)..GetComponent<TextMeshProUGUI>().text = SocketServer.staticHeadShotCounter[i].ToString();
-            }
-            else
-            {
-                //pInfo.transform.GetChild(0).GetComponent<Image>().material = m_blueRosterBackground;
-                pInfo.name = "pInfo_B_" + i.ToString();
-                pInfo.transform.GetChild(0).GetChild(1).GetComponent<TextMeshProUGUI>().text = playerNamesWithSpaces[i];
-                pInfo.transform.GetChild(0).GetChild(4).GetComponent<TextMeshProUGUI>().text = SocketServer.staticPlayerKillList[i].ToString();
-                pInfo.transform.GetChild(0).GetChild(7).GetComponent<TextMeshProUGUI>().text = SocketServer.staticPlayerDeathList[i].ToString();
-                //pInfo.transform.GetChild(0).GetChild(1)..GetComponent<TextMeshProUGUI>().text = SocketServer.staticHeadShotCounter[i].ToString();
-            }
-
-            yield return new WaitForSeconds(_waitTime);
-            Destroy(pInfo);
-            isNameInfoShowing[i] = false;
-
-            // below is somewhat setup for the horizontal names list for prefab P_namesColorTop
-
-            //GameObject pInfo = Instantiate(playerInfoHolder, playerInfoHolderParent.transform);
-            //pInfo.name = "pInfo_" + i.ToString();
-            //pInfo.transform.GetChild(0).GetComponent<Image>().color = _topBorder;
-
-            //pInfo.transform.GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>().text = SocketServer.staticPlayerNamesList[i];
-            //pInfo.transform.GetChild(0).GetChild(1).GetChild(1).GetComponent<TextMeshProUGUI>().text = SocketServer.staticPlayerKillList[i].ToString();
-            //pInfo.transform.GetChild(0).GetChild(1).GetChild(3).GetComponent<TextMeshProUGUI>().text = SocketServer.staticPlayerDeathList[i].ToString();
-            //pInfo.transform.GetChild(0).GetChild(1).GetChild(5).GetComponent<TextMeshProUGUI>().text = SocketServer.staticHeadShotCounter[i].ToString();
-
-            //yield return new WaitForSeconds(_waitTime);
-            //Destroy(pInfo);
-            //isNameInfoShowing[i] = false;
-        }
-    }
 
 
     public void ResetNameInfo()
     {
         playerNamesWithSpaces.Clear();
-        isNameInfoShowing.Clear();
         kTot.Clear();
         dTot.Clear();
         hTot.Clear();
@@ -511,10 +333,6 @@ public class KillStreakCounter : MonoBehaviour
         for (int i = 0; i < 10; i++)
         {
             playerNamesWithSpaces.Add("not name");
-        }
-        for (int i = 0; i < 10; i++)
-        {
-            isNameInfoShowing.Add(false);
         }
         for (int i = 0; i < 2; i++)
         {

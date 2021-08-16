@@ -1139,6 +1139,7 @@ GameObject:
   - component: {fileID: 324033812}
   - component: {fileID: 324033811}
   - component: {fileID: 324033813}
+  - component: {fileID: 324033814}
   m_Layer: 0
   m_Name: HDUIManager
   m_TagString: Untagged
@@ -1172,9 +1173,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8653b2c7985d5f14fae56c2d19c64f43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerMainUIInfoHolder:
-  - {fileID: 2911005327518683740, guid: 31d20b67cc51a554d91f869ab3b6dd10, type: 3}
-  - {fileID: 2911005327518683740, guid: 9d29d31391170d24fb9023094f0f56d4, type: 3}
   wwMapParts:
   - {fileID: 1832491884}
   - {fileID: 1832491886}
@@ -1201,61 +1199,6 @@ MonoBehaviour:
   - {fileID: 1652259990}
   - {fileID: 1427929884}
   - {fileID: 1836690210}
-  playerNamesScoreboardTMP:
-  - {fileID: 1652259989}
-  - {fileID: 1652259988}
-  - {fileID: 1652259987}
-  - {fileID: 1652259986}
-  - {fileID: 1652259985}
-  - {fileID: 1836690209}
-  - {fileID: 1836690208}
-  - {fileID: 1836690207}
-  - {fileID: 1836690206}
-  - {fileID: 1836690205}
-  playerKillsTMP:
-  - {fileID: 1652259984}
-  - {fileID: 1652259983}
-  - {fileID: 1652259982}
-  - {fileID: 1652259981}
-  - {fileID: 1652259980}
-  - {fileID: 1836690204}
-  - {fileID: 1836690203}
-  - {fileID: 1836690202}
-  - {fileID: 1836690201}
-  - {fileID: 1836690200}
-  playerDeathsTMP:
-  - {fileID: 1652259979}
-  - {fileID: 1652259978}
-  - {fileID: 1652259977}
-  - {fileID: 1652259976}
-  - {fileID: 1652259975}
-  - {fileID: 1836690199}
-  - {fileID: 1836690198}
-  - {fileID: 1836690197}
-  - {fileID: 1836690196}
-  - {fileID: 1836690195}
-  playerKDTMP:
-  - {fileID: 1652259974}
-  - {fileID: 1652259973}
-  - {fileID: 1652259972}
-  - {fileID: 1652259971}
-  - {fileID: 1652259970}
-  - {fileID: 1836690194}
-  - {fileID: 1836690193}
-  - {fileID: 1836690192}
-  - {fileID: 1836690191}
-  - {fileID: 1836690190}
-  playerHSTMP:
-  - {fileID: 1652259969}
-  - {fileID: 1652259968}
-  - {fileID: 1652259967}
-  - {fileID: 1652259966}
-  - {fileID: 1652259965}
-  - {fileID: 1836690189}
-  - {fileID: 1836690188}
-  - {fileID: 1836690187}
-  - {fileID: 1836690186}
-  - {fileID: 1836690185}
   playerKillsTotTMP:
   - {fileID: 1652259964}
   - {fileID: 1836690184}
@@ -1268,9 +1211,6 @@ MonoBehaviour:
   playerHSTotTMP:
   - {fileID: 1652259961}
   - {fileID: 1836690181}
-  verticalRosterHolder:
-  - {fileID: 850923365}
-  - {fileID: 101906809}
   cutTeamNames: []
   m_blueBase: {fileID: 2100000, guid: 849993d0fd7d846408fb51d68a35cc46, type: 2}
   m_redBase: {fileID: 2100000, guid: 2bbd36c34ef8b1d47beeb7b9e77e834b, type: 2}
@@ -1346,6 +1286,8 @@ MonoBehaviour:
       BlueScore: 0
       Holding: 0
       TeamHolding: 0
+  kf: {fileID: 324033813}
+  sbm: {fileID: 324033814}
 --- !u!114 &324033813
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1375,6 +1317,85 @@ MonoBehaviour:
   - {fileID: 21300000, guid: ba0390e805e18a84da2471cfb956f708, type: 3}
   - {fileID: 21300000, guid: 563d9ac5719808e4392f9ecdaadabea6, type: 3}
   kfBack: {fileID: 1354556859}
+--- !u!114 &324033814
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 324033809}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 079c05405f7fc734abc0c7276044fe31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerMainUIInfoHolder:
+  - {fileID: 2911005327518683740, guid: 31d20b67cc51a554d91f869ab3b6dd10, type: 3}
+  - {fileID: 2911005327518683740, guid: 9d29d31391170d24fb9023094f0f56d4, type: 3}
+  playerNamesTMP:
+  - {fileID: 1652259989}
+  - {fileID: 1652259988}
+  - {fileID: 1652259987}
+  - {fileID: 1652259986}
+  - {fileID: 1652259985}
+  - {fileID: 1836690209}
+  - {fileID: 1836690208}
+  - {fileID: 1836690207}
+  - {fileID: 1836690206}
+  - {fileID: 1836690205}
+  teamNamesTMP:
+  - {fileID: 1652259990}
+  - {fileID: 305490481}
+  - {fileID: 1836690210}
+  - {fileID: 1427929884}
+  playerKillsTMP:
+  - {fileID: 1652259984}
+  - {fileID: 1652259983}
+  - {fileID: 1652259982}
+  - {fileID: 1652259981}
+  - {fileID: 1652259980}
+  - {fileID: 1836690204}
+  - {fileID: 1836690203}
+  - {fileID: 1836690202}
+  - {fileID: 1836690201}
+  - {fileID: 1836690200}
+  playerDeathsTMP:
+  - {fileID: 1652259979}
+  - {fileID: 1652259978}
+  - {fileID: 1652259977}
+  - {fileID: 1652259976}
+  - {fileID: 1652259975}
+  - {fileID: 1836690199}
+  - {fileID: 1836690198}
+  - {fileID: 1836690197}
+  - {fileID: 1836690196}
+  - {fileID: 1836690195}
+  playerKDTMP:
+  - {fileID: 1652259974}
+  - {fileID: 1652259973}
+  - {fileID: 1652259972}
+  - {fileID: 1652259971}
+  - {fileID: 1652259970}
+  - {fileID: 1836690194}
+  - {fileID: 1836690193}
+  - {fileID: 1836690192}
+  - {fileID: 1836690191}
+  - {fileID: 1836690190}
+  playerHSTMP:
+  - {fileID: 1652259969}
+  - {fileID: 1652259968}
+  - {fileID: 1652259967}
+  - {fileID: 1652259966}
+  - {fileID: 1652259965}
+  - {fileID: 1836690189}
+  - {fileID: 1836690188}
+  - {fileID: 1836690187}
+  - {fileID: 1836690186}
+  - {fileID: 1836690185}
+  isPayload: {fileID: 844377014}
+  verticalRosterHolder:
+  - {fileID: 539550972}
+  - {fileID: 490357283}
 --- !u!1 &401704848
 GameObject:
   m_ObjectHideFlags: 0
