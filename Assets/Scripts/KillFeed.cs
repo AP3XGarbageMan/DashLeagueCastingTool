@@ -8,26 +8,25 @@ using System.Linq;
 
 public class KillFeed : MonoBehaviour
 {
+    private int[] previousKills = new int[10];
+    private int[] previousDeaths = new int[10];
+    private int[] currentKills = new int[10];
+    private int[] currentDeaths = new int[10];
+    private int[] currentKillStreak = new int[10];
 
-    private List<int> previousKills = new List<int>();
-    private List<int> previousDeaths = new List<int>();
-    private List<int> currentKills = new List<int>();
-    private List<int> currentDeaths = new List<int>();
-    private List<int> currentKillStreak = new List<int>();
+    public int[] teamNumList = new int[10];
+    public int[] teamHSList = new int[10];
+    public int[] teamKillsList = new int[10];
+    public int[] teamDeathsList = new int[10];
 
-    private List<int> teamNumList = new List<int>();
-    private List<int> teamHSList = new List<int>();
-    private List<int> teamKillsList = new List<int>();
-    private List<int> teamDeathsList = new List<int>();
+    public string[] playerNames = new string[10];
 
-    private List<string> playerNames = new List<string>();
+    private int[] HighestKillStreak = new int[10];
 
-    public static List<int> HighestKillStreak = new List<int>();
-
-    private List<bool> isStreaking = new List<bool>();
+    private bool[] isStreaking = new bool[10];
 
     private IEnumerator coroutineKillFeed;
-    private IEnumerator coroutineDeathBar;
+    //private IEnumerator coroutineDeathBar;
 
 
     private int numActiveKillFeeds = 0;
@@ -38,59 +37,66 @@ public class KillFeed : MonoBehaviour
     [SerializeField]
     private GameObject[] verticalSBPlayers;
 
-    public GameObject stashGO;
-
     [SerializeField]
     private Transform kfParent;
 
     [SerializeField]
     private List<Sprite> weaponIcon = new List<Sprite>();
 
-    private Color colorBlue = new Color32(8, 135, 255, 255);
-    private Color colorRed = new Color32(240, 14, 52, 255);
+    //private Color colorBlue = new Color32(8, 135, 255, 255);
+    //private Color colorRed = new Color32(240, 14, 52, 255);
     private Color killerColor;
     private Color victumColor;
 
     [SerializeField]
     private Toggle kfBack;
 
-    // inialize everything with 0 or name
-    public void Start()
+    private void Start()
     {
         // populate lists for first maths
         for (int i = 0; i < 10; i++)
         {
-            currentKillStreak.Add(0);
-            currentKills.Add(0);
-            currentDeaths.Add(0);
-            previousKills.Add(0);
-            previousDeaths.Add(0);
-            HighestKillStreak.Add(0);
-            teamNumList.Add(0);
-            teamHSList.Add(0);
-            playerNames.Add("name");
+            Debug.Log("Setting up lists");
+
+            currentKillStreak[i] = 0;
+            currentKills[i] = 0;
+            currentDeaths[i] = 0;
+            previousKills[i] = 0;
+            previousDeaths[i] = 0;
+            HighestKillStreak[i] = 0;
+            teamNumList[i] = 0;
+            teamHSList[i] = 0;
+            playerNames[i] = ("name");
+            Debug.Log("player name is = " + playerNames[i]);
         }
         for (int i = 0; i < 10; i++)
         {
-            isStreaking.Add(false);
+            isStreaking[i] = (false);
         }
         for (int i = 0; i < 2; i++)
         {
-            teamDeathsList.Add(0);
-            teamKillsList.Add(0);
-            teamHSList.Add(0);
+            teamDeathsList[i] = 0;
+            teamKillsList[i] = 0;
+            teamHSList[i] = 0;
         }
     }
+
 
     // from SB event
     public void GetSBEvent(Root data)
     {
+        Debug.Log("size of data pool = " + data.Data.Names.Length.ToString());
+        Debug.Log("data.Data.Name[j] = " + data.Data.Names[2]);
         // fill with data before we update
-        SetPreviousDeaths();
-
-        for (int j = 0; j < data.Data.Names.Length; j++)
+        //SetPreviousDeaths();
+        Debug.Log("data.Data.Name[j] = " + data.Data.Names[4]);
+        for (int j = 0; j < 10; j++)
         {
+            Debug.Log("data.Data.Name[j] = " + data.Data.Names[j]);
+            Debug.Log("playerName[j] = " + playerNames[j]);
             playerNames[j] = data.Data.Names[j];
+            Debug.Log("data.Data.Name[j] again = " + data.Data.Names[j]);
+            Debug.Log("playerNames[j] = " + playerNames[j]);
             teamKillsList[j] = data.Data.Kills[j];
             teamDeathsList[j] = data.Data.Deaths[j];
             teamNumList[j] = data.Data.Teams[j];
@@ -100,8 +106,11 @@ public class KillFeed : MonoBehaviour
     // set previous kills/deaths list from current
     public void SetPreviousDeaths()
     {
-        for (int i = 0; i < currentKills.Count; i++)
+        Debug.Log("Made it to set previous deaths in kf ");
+        Debug.Log("current kills count = " + currentKills.Length.ToString());
+        for (int i = 0; i < 10; i++)
         {
+            Debug.Log("previous deaths = " + previousDeaths[i]);
             previousDeaths[i] = teamDeathsList[i];
             previousKills[i] = teamKillsList[i];
         }
@@ -140,47 +149,56 @@ public class KillFeed : MonoBehaviour
 
     public void SpawnKF(Root data)
     {
+        Debug.Log("Made it to spawn kf ");
+
         float wait = 2.0f;
         int fixedWeapon = 0;
 
-        if (SocketServer.staticGunKillInt == 0)
+        if (data.Data.WeaponsType == 0)
         {
             fixedWeapon = 0;
         }
-        if (SocketServer.staticGunKillInt == 1)
+        if (data.Data.WeaponsType == 1)
         {
             fixedWeapon = 6;
         }
-        if (SocketServer.staticGunKillInt == 2)
+        if (data.Data.WeaponsType == 2)
         {
             fixedWeapon = 4;
         }
-        if (SocketServer.staticGunKillInt == 7)
+        if (data.Data.WeaponsType == 7)
         {
             fixedWeapon = 5;
         }
-        if (SocketServer.staticGunKillInt == 8)
+        if (data.Data.WeaponsType == 8)
         {
             fixedWeapon = 8;
         }
-        if (SocketServer.staticGunKillInt == 9)
+        if (data.Data.WeaponsType == 9)
         {
             fixedWeapon = 7;
         }
-        if (SocketServer.staticGunKillInt == 11)
+        if (data.Data.WeaponsType == 11)
         {
             fixedWeapon = 2;
         }
 
+        Debug.Log("setting up kf coroutine");
+        string _killer = data.Data.Killer;
+        string _victim = data.Data.Victum;
+        coroutineKillFeed = SpawnKF(wait, fixedWeapon, _killer, _victim);
+        Debug.Log("starting kf coroutine");
 
-        coroutineKillFeed = SpawnKF(wait, fixedWeapon, data);
+
         StartCoroutine(coroutineKillFeed);
     }
 
-    IEnumerator SpawnKF(float _wait, int _weaponType, Root _data)
+    IEnumerator SpawnKF(float _wait, int _weaponType, string _killer, string _victim)
     {
+        Debug.Log("Made it to spawn kf numerator");
 
-        CheckColors(_data.Data.Killer, _data.Data.Victum);
+        CheckColors(_killer, _victim);
+        //CheckColors(_data.Data.Killer, _data.Data.Victum);
         CheckKillStreak();
 
 
@@ -191,12 +209,12 @@ public class KillFeed : MonoBehaviour
 
         // instantiate kill feed
         GameObject kfTextGO = Instantiate(kfGO, kfParent);
-        kfTextGO.name = _data.Data.Killer + "_kf";
+        kfTextGO.name = _killer + "_kf";
 
         // check if player is streaking. If so, set the streaking parent to active
-        for (int i = 0; i < isStreaking.Count; i++)
+        for (int i = 0; i < isStreaking.Length; i++)
         {
-            if (playerNames[i] == _data.Data.Killer)
+            if (playerNames[i] == _killer)
             {
                 if (isStreaking[i])
                 {
@@ -209,16 +227,16 @@ public class KillFeed : MonoBehaviour
             }
         }
 
-        kfTextGO.transform.GetChild(1).GetChild(0).GetComponent<TextMeshProUGUI>().text = _data.Data.Killer;
+        kfTextGO.transform.GetChild(1).GetChild(0).GetComponent<TextMeshProUGUI>().text = _killer;
         kfTextGO.transform.GetChild(1).GetChild(0).GetComponent<TextMeshProUGUI>().color = killerColor;
         kfTextGO.transform.GetChild(1).GetChild(2).GetComponent<Image>().sprite = weaponIcon[_weaponType];
-        kfTextGO.transform.GetChild(1).GetChild(4).GetComponent<TextMeshProUGUI>().text = _data.Data.Victum;
+        kfTextGO.transform.GetChild(1).GetChild(4).GetComponent<TextMeshProUGUI>().text = _victim;
         kfTextGO.transform.GetChild(1).GetChild(4).GetComponent<TextMeshProUGUI>().color = victumColor;
 
-        if (_data.Data.HeadShot)
-        {
-            kfTextGO.transform.GetChild(1).GetChild(2).GetComponent<Image>().color = Color.red;
-        }
+        //if (_data.Data.HeadShot)
+        //{
+        //    kfTextGO.transform.GetChild(1).GetChild(2).GetComponent<Image>().color = Color.red;
+        //}
 
         if (!kfBack.isOn)
         {
@@ -233,17 +251,19 @@ public class KillFeed : MonoBehaviour
 
     public void CheckColors(string _killer, string _victum)
     {
-        for (int i = 0; i < playerNames.Count; i++)
+        Debug.Log("Made it to check colors ");
+
+        for (int i = 0; i < playerNames.Length; i++)
         {
             if (playerNames[i] == _killer)
             {
                 if (i < 5)
                 {
-                    killerColor = colorRed;
+                    killerColor = Color.red;
                 }
                 if (i > 4)
                 {
-                    killerColor = colorBlue;
+                    killerColor = Color.blue;
                 }
             }
 
@@ -251,11 +271,11 @@ public class KillFeed : MonoBehaviour
             {
                 if (i < 5)
                 {
-                    victumColor = colorRed;
+                    victumColor = Color.red;
                 }
                 if (i > 4)
                 {
-                    victumColor = colorBlue;
+                    victumColor = Color.blue;
                 }
             }
         }
@@ -263,7 +283,7 @@ public class KillFeed : MonoBehaviour
 
     public void CheckKillStreak()
     {
-        for (int i = 0; i < currentKills.Count; i++)
+        for (int i = 0; i < currentKills.Length; i++)
         {
             if (currentKills[i] > previousKills[i])
             {
@@ -297,28 +317,21 @@ public class KillFeed : MonoBehaviour
 
     public void ResetDataKF()
     {
-        currentKillStreak.Clear();
-        currentKills.Clear();
-        currentDeaths.Clear();
-        previousKills.Clear();
-        previousDeaths.Clear();
-        HighestKillStreak.Clear();
-        isStreaking.Clear();
 
         // populate lists for first maths
         for (int i = 0; i < 10; i++)
         {
-            currentKillStreak.Add(0);
-            currentKills.Add(0);
-            currentDeaths.Add(0);
-            previousKills.Add(0);
-            previousDeaths.Add(0);
-            HighestKillStreak.Add(0);
+            currentKillStreak[i] = 0;
+            currentKills[i] = 0;
+            currentDeaths[i] = 0;
+            previousKills[i] = 0;
+            previousDeaths[i] = 0;
+            HighestKillStreak[i] = 0;
 
         }
         for (int i = 0; i < 10; i++)
         {
-            isStreaking.Add(false);
+            isStreaking[i] = (false);
         }
     }
 }

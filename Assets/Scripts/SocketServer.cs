@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using Newtonsoft.Json;
 using UnityEngine;
-using TMPro;
 
 public class SocketServer : MonoBehaviour
 {
@@ -15,56 +12,57 @@ public class SocketServer : MonoBehaviour
     private TcpClient tcpClient;
     private NetworkStream stream;
     private byte[] reciveBuffer;
-    private int bufferSize = 4096;
+    private int bufferSize;
 
 
 
-    public static bool staticIsHeadshot = false;
-    public static bool staticKillHappened = false;
-    public static bool staticReadingData = false;
+    //public static bool staticIsHeadshot = false;
+    //public static bool staticKillHappened = false;
+    //public static bool staticReadingData = false;
 
-    //TODO Make this a enum
-    public static bool staticIsPayload = false;
-    public static bool staticIsDomination = false;
-    public static bool staticIsCP = false;
+    ////TODO Make this a enum
+    //public static bool staticIsPayload = false;
+    //public static bool staticIsDomination = false;
+    //public static bool staticIsCP = false;
 
-    public static bool[] staticHolding = { false, false, false };
+    //public static bool[] staticHolding = { false, false, false };
 
-    public static string[] staticPlayerNamesList = { "name", "name", "name", "name", "name", "name", "name", "name", "name", "name" };
-    public static string[] staticVictumKiller = { "name", "name" };
-    public static string staticMapName = "map";
+    //public static string[] staticPlayerNamesList = { "name", "name", "name", "name", "name", "name", "name", "name", "name", "name" };
+    //public static string[] staticVictumKiller = { "name", "name" };
+    //public static string staticMapName = "map";
 
-    public static List<string> jsonOut = new List<string>();
+    //public static List<string> jsonOut = new List<string>();
 
-    public static int[] staticPlayerKillList = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-    public static int[] staticPlayerDeathList = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-    public static int[] staticHeadShotCounter = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-    public static int[] staticTeamList = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-    public static int[] totalTeamKills = { 0, 0 };
-    public static int[] totalTeamDeaths = { 0, 0 };
-    public static int[] totalTeamsHS = { 0, 0 };
-    public static int[] staticTeamButton = { -1, -1, -1 };
-    public static int[] buttonInfoTeams = { 0, 0, 0 };
+    //public static int[] staticPlayerKillList = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    //public static int[] staticPlayerDeathList = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    //public static int[] staticHeadShotCounter = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    //public static int[] staticTeamList = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    //public static int[] totalTeamKills = { 0, 0 };
+    //public static int[] totalTeamDeaths = { 0, 0 };
+    //public static int[] totalTeamsHS = { 0, 0 };
+    //public static int[] staticTeamButton = { -1, -1, -1 };
+    //public static int[] buttonInfoTeams = { 0, 0, 0 };
 
-    public static int staticGunKillInt = 0;
-    public static int staticRedPercent = 0;
-    public static int staticBluePercent = 0;
-    public static int staticPlayerOnCart = 0;
-    public static int staticRedPointDom = 0;
-    public static int staticBluePointDom = 0;
-    public static int staticRedPointCp = 0;
-    public static int staticBluePointCp = 0;
+    //public static int staticGunKillInt = 0;
+    //public static int staticRedPercent = 0;
+    //public static int staticBluePercent = 0;
+    //public static int staticPlayerOnCart = 0;
+    //public static int staticRedPointDom = 0;
+    //public static int staticBluePointDom = 0;
+    //public static int staticRedPointCp = 0;
+    //public static int staticBluePointCp = 0;
 
-    public static float[] totalTeamKD = { 0, 0 };
+    //public static float[] totalTeamKD = { 0, 0 };
 
-    [SerializeField] private Root dataInspector;
-    private Dictionary<string, Vector3> _playerposAsLastSeen = new Dictionary<string, Vector3>();
-    public static Dictionary<string, Vector3> playerPositions = new Dictionary<string, Vector3>();
+    public Root dataInspector;
+
+    //private Dictionary<string, Vector3> _playerposAsLastSeen = new Dictionary<string, Vector3>();
+    //public static Dictionary<string, Vector3> playerPositions = new Dictionary<string, Vector3>();
     public static string[] ppArray;
-    private Dictionary<int, string> _indexToPlayername = new Dictionary<int, string>();
+    //private Dictionary<int, string> _indexToPlayername = new Dictionary<int, string>();
 
-    private ScoreBoardManager sbm = new ScoreBoardManager();
-    private KillFeed kf = new KillFeed();
+    //private KillFeed kf = new KillFeed();
+    private Manager_KillFeedSpawner kfm;
 
     //public static float timeStamp;
     //public string filePath = "";
@@ -72,47 +70,50 @@ public class SocketServer : MonoBehaviour
     //public static List<string> jsonOut = new List<string>();
 
 
-    public void ResetData()
-    {
-        staticIsHeadshot = false;
-        staticKillHappened = false;
-        staticReadingData = false;
-        staticGunKillInt = 0;
-        staticRedPercent = 0;
-        staticBluePercent = 0;
-        staticPlayerOnCart = 0;
+    //public void ResetData()
+    //{
+    //    staticIsHeadshot = false;
+    //    staticKillHappened = false;
+    //    staticReadingData = false;
+    //    staticGunKillInt = 0;
+    //    staticRedPercent = 0;
+    //    staticBluePercent = 0;
+    //    staticPlayerOnCart = 0;
 
-        for (int i = 0; i < 3; i++)
-        {
-            staticHolding[i] = false;
-            staticTeamButton[i] = -1;
-        }
+    //    for (int i = 0; i < 3; i++)
+    //    {
+    //        staticHolding[i] = false;
+    //        staticTeamButton[i] = -1;
+    //    }
 
-        for (int i = 0; i < 10; i++)
-        {
-            staticPlayerKillList[i] = 0;
-            staticPlayerDeathList[i] = 0;
-            staticHeadShotCounter[i] = 0;
-            staticTeamList[i] = 0;
-            staticPlayerNamesList[i] = "name";
-        }
+    //    for (int i = 0; i < 10; i++)
+    //    {
+    //        staticPlayerKillList[i] = 0;
+    //        staticPlayerDeathList[i] = 0;
+    //        staticHeadShotCounter[i] = 0;
+    //        staticTeamList[i] = 0;
+    //        staticPlayerNamesList[i] = "name";
+    //    }
 
-        for (int i = 0; i < 2; i++)
-        {
-            staticVictumKiller[i] = "name";
-            totalTeamKills[i] = 0;
-            totalTeamDeaths[i] = 0;
-            totalTeamsHS[i] = 0;
-            totalTeamKD[i] = 0;
-        }
+    //    for (int i = 0; i < 2; i++)
+    //    {
+    //        staticVictumKiller[i] = "name";
+    //        totalTeamKills[i] = 0;
+    //        totalTeamDeaths[i] = 0;
+    //        totalTeamsHS[i] = 0;
+    //        totalTeamKD[i] = 0;
+    //    }
 
-        jsonOut.Clear();
-    }
+    //    jsonOut.Clear();
+    //}
     private void Start()
     {
+        bufferSize = 4096;
         _tcpServer = new TcpListener(IPAddress.Parse("127.0.0.1"), 3333);
         _tcpServer.Start();
         _tcpServer.BeginAcceptTcpClient(TcpConnectionCallback, null);
+
+        kfm = new Manager_KillFeedSpawner();
     }
 
     // I HATE C# CALLBACKS WHYYYYYYYYYYYY this is so dumb
@@ -168,7 +169,7 @@ public class SocketServer : MonoBehaviour
             }
 
             dataInspector = JsonConvert.DeserializeObject<Root>(convertedData);
-            jsonOut.Add(convertedData);
+            //jsonOut.Add(convertedData);
             dataReader(dataInspector);
 
         }
@@ -179,19 +180,22 @@ public class SocketServer : MonoBehaviour
         switch (data.Type)
         {
             case "Dead":
-                dataReaderDead(data, kf);
+                //dataReaderDead(data);
+                kfm.SpawnKF(data);
                 break;
             //case "PP":
             //    dataReaderPP(data);
             //    break;
             case "Domination":
                 dataReaderDomination(data);
+
                 break;
             case "Payload":
                 dataReaderPayload(data);
                 break;
             case "ScoreBoard":
-                dataReaderScoreboard(data, kf, sbm);
+                kfm.GetSBEvent(data);
+                //dataReaderScoreboard(data, kf, sbm);
                 break;
             case "Controll":
                 dataReaderControlPoint(data);
@@ -199,16 +203,24 @@ public class SocketServer : MonoBehaviour
         }
     }
 
-    void dataReaderDead(Root data, KillFeed _kf)
+    void dataReaderDead(Root _data)
     {
-        Debug.Log("Data type is " + data.Type + " should be running Dead if it is Dead");
+        // Debug.Log("Data type is " + data.Type + " should be running Dead if it is Dead");
         
-        if (data.Type == "Dead")
+        if (_data.Type == "Dead")
         {
-            _kf.SpawnKF(data);
+            // Debug.Log("yep, its dead");
+            // mkf.SpawnKF(_data);
+            //kfm.SpawnKF(_data);
         }
     }
 
+    void dataReaderScoreboard(Root data, KillFeed _kf, ScoreBoardManager _sbm)
+    {
+        //Debug.Log("made it to data reader scoreboard");
+        //kfm.GetSBEvent(data);
+        //_sbm.GetSBEvent(data);
+    }
     void dataReaderDomination(Root data)
     {
         //if (data.Type == "Domination")
@@ -251,12 +263,7 @@ public class SocketServer : MonoBehaviour
         //}
     }
 
-    void dataReaderScoreboard(Root data, KillFeed _kf, ScoreBoardManager _sbm)
-    {
-        Debug.Log("made it to data reader scoreboard");
-        _kf.GetSBEvent(data);
-        _sbm.GetSBEvent(data);
-    }
+
 
     //void dataReaderPP(Root data)
     //{

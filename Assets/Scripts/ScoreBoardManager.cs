@@ -6,6 +6,9 @@ using UnityEngine.UI;
 
 public class ScoreBoardManager : MonoBehaviour
 {
+    bool[] isDead;
+    bool[] isNameInfoShowing;
+
     public List<int> teamNumList = new List<int>();
     public List<int> teamHSList = new List<int>();
     public List<int> teamKillsList = new List<int>();
@@ -14,12 +17,8 @@ public class ScoreBoardManager : MonoBehaviour
     public List<int> currentKills = new List<int>();
     public List<int> currentDeaths = new List<int>();
 
-    private List<string> playerNames = new List<string>();
-    private List<string> playerNamesWithSpaces = new List<string>();
-
-    public static List<bool> isDead = new List<bool>();
-    private List<bool> isNameInfoShowing = new List<bool>();
-
+    private List<string> playerNames;
+    private List<string> playerNamesWithSpaces;
 
     [SerializeField]
     private GameObject[] playerMainUIInfoHolder;
@@ -47,6 +46,11 @@ public class ScoreBoardManager : MonoBehaviour
     // inialize everything with 0 or name
     public void Start()
     {
+        isDead = new bool[10];
+        isNameInfoShowing = new bool[10];
+        playerNames = new List<string>();
+        playerNamesWithSpaces = new List<string>();
+
         // populate lists for first maths
         for (int i = 0; i < 10; i++)
         {
@@ -59,7 +63,8 @@ public class ScoreBoardManager : MonoBehaviour
         }
         for (int i = 0; i < 10; i++)
         {
-            isDead.Add(false);
+            isDead[i] = (false);
+            isNameInfoShowing[i] = false;
         }
         for (int i = 0; i < 2; i++)
         {
