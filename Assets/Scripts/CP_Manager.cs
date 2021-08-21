@@ -24,8 +24,6 @@ public class CP_Manager : MonoBehaviour
         teamSBMapScore[0].text = data.Data.RedScore.ToString();
         teamTopPanelScore[1].text = data.Data.BlueScore.ToString();
         teamSBMapScore[1].text = data.Data.BlueScore.ToString();
-        
-
     }
 }
 

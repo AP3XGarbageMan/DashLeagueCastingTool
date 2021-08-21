@@ -17,16 +17,6 @@ public class SocketServer : MonoBehaviour
     private int bufferSize = 4096;
 
     [SerializeField] private Root dataInspector;
-    // private Dictionary<string, Vector3> _playerposAsLastSeen = new Dictionary<string, Vector3>();
-    // public static Dictionary<string, Vector3> playerPositions = new Dictionary<string, Vector3>();
-    // public static string[] ppArray;   
-    // private Dictionary<int, string> _indexToPlayername = new Dictionary<int, string>();
-
-    // public KF_Manager KFm;
-    // public SB_Manager mSB;
-    // public Payload_Manager mPL;
-    // public Domination_Manager mD;
-    // public CP_Manager mCP;
 
     // These events can be sub to. so the socketserver doesn't need to know what to call 
     public static event Action<Root> KillFeedEvent;
@@ -77,6 +67,7 @@ public class SocketServer : MonoBehaviour
 
             int barsopen = 0;
 
+            // There has to be a better way to do this
             foreach (char c in stringdata)
             {
                 convertedData += c;
