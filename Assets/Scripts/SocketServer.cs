@@ -17,28 +17,31 @@ public class SocketServer : MonoBehaviour
     private int bufferSize = 4096;
 
     [SerializeField] private Root dataInspector;
-    private Dictionary<string, Vector3> _playerposAsLastSeen = new Dictionary<string, Vector3>();
-    public static Dictionary<string, Vector3> playerPositions = new Dictionary<string, Vector3>();
-    public static string[] ppArray;   
-    private Dictionary<int, string> _indexToPlayername = new Dictionary<int, string>();
+    // private Dictionary<string, Vector3> _playerposAsLastSeen = new Dictionary<string, Vector3>();
+    // public static Dictionary<string, Vector3> playerPositions = new Dictionary<string, Vector3>();
+    // public static string[] ppArray;   
+    // private Dictionary<int, string> _indexToPlayername = new Dictionary<int, string>();
 
-    //KF_Manager KFm;
-    public SB_Manager mSB;
-    public Payload_Manager mPL;
-    public Domination_Manager mD;
-    public CP_Manager mCP;
+    // public KF_Manager KFm;
+    // public SB_Manager mSB;
+    // public Payload_Manager mPL;
+    // public Domination_Manager mD;
+    // public CP_Manager mCP;
+
+    // These events can be sub to. so the socketserver doesn't need to know what to call 
+    public static event Action<Root> KillFeedEvent;
+    public static event Action<Root> StartEvent; 
+    public static event Action<Root> ScoreBoardEvent;
+    public static event Action<Root> PlayerPosEvent; 
+    public static event Action<Root> PayloadEvent;
+    public static event Action<Root> DominationEvent; 
+    public static event Action<Root> ControllEvent;
 
     private void Start()
     {
         _tcpServer = new TcpListener(IPAddress.Parse("127.0.0.1"), 3333);
         _tcpServer.Start();
         _tcpServer.BeginAcceptTcpClient(TcpConnectionCallback, null);
-
-        //KFm = GetComponent<KF_Manager>();
-        mSB = mSB.GetComponent<SB_Manager>();
-        mPL = mPL.GetComponent<Payload_Manager>();
-        mD = mD.GetComponent<Domination_Manager>();
-        mCP = mCP.GetComponent<CP_Manager>();
     }
 
     // I HATE C# CALLBACKS WHYYYYYYYYYYYY this is so dumb
@@ -99,41 +102,39 @@ public class SocketServer : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        // Fake Data Creator
+        if (Input.GetMouseButtonDown(0))
+        {
+            var fakeData = new Root();
+            fakeData.Data = new Data();
+            fakeData.Type = "Dead";
+            fakeData.Data.Killer = "My mom";
+            fakeData.Data.Victum = "Yourself";
+            fakeData.Data.HeadShot = true;
+            fakeData.Data.IsAltfire = false;
+            fakeData.Data.WeaponsType = 0;
+
+            dataREADER(fakeData);
+        }
+    }
+
 
     void dataREADER(Root data)
     {
-       // Debug.Log("reading data");
-
         switch (data.Type)
         {
-            case "Dead":
-
-                break;
-            //case "PP":
-            //    //Debug.Log(data.Type);
-            //    break;
-            case "ScoreBoard":
-                mSB.data = data;
-                mSB.SetScoreBoard();
-               
-                break;
-            case "Payload":
-                mPL.data = data;
-                mD.isDomination = false;
-                mPL.isPayload = true;
-                mCP.isCP = false;
-                break;
-            case "Domination":
-                mD.data = data;
-                mD.isDomination = true;
-                mPL.isPayload = false;
-                mCP.isCP = false;
-                break;
-            case "Controll":
-                mCP.data = data;
-                mD.isDomination = false;
-                mPL.isPayload = false;
-                mCP.isCP = true;
+            case "Start": StartEvent?.Invoke(data); break;
+            case "Dead": KillFeedEvent?.Invoke(data); break;
+            case "PP": PlayerPosEvent?.Invoke(data); break;
+            case "ScoreBoard": ScoreBoardEvent?.Invoke(data); break;
+            case "Payload": PayloadEvent?.Invoke(data); break;
+            case "Domination": DominationEvent?.Invoke(data); break;
+            case "Controll": ControllEvent?.Invoke(data); break;
+            
+            default:
+                Debug.Log($"NOT used data type \"{data.Type}\"");
                 break;
         }
     }

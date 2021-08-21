@@ -37,6 +37,7 @@ public class SB_Manager : MonoBehaviour
 
     private void Start()
     {
+        SocketServer.ScoreBoardEvent += SetScoreBoard;
         pmsb = pmsb.GetComponent<PopulateMainScoreboard>();
 
         for (int i = 0; i < data.Data.Names.Length; i++)
@@ -68,8 +69,9 @@ public class SB_Manager : MonoBehaviour
         }   
     }
 
-    public void SetScoreBoard()
+    public void SetScoreBoard(Root data)
     {
+        this.data = data;
         teamKills[0] = 0;
         teamKills[1] = 0;
         teamDeaths[0] = 0;

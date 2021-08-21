@@ -4,10 +4,9 @@ using UnityEngine.UI;
 
 public class Payload_Manager : MonoBehaviour
 {
-    public Root data;
+    // public Root data;
     public SB_Manager mSB;
-    public bool isPayload = false;
-
+    
     [SerializeField]
     private TextMeshProUGUI[] teamTopPanelScore;
     [SerializeField]
@@ -23,49 +22,47 @@ public class Payload_Manager : MonoBehaviour
     void Start()
     {
         mSB = mSB.GetComponent<SB_Manager>();
+        SocketServer.PayloadEvent += PayloadUpdate;
     }
 
     // Update is called once per frame
-    void Update()
+    void PayloadUpdate(Root data)
     {
-        if (isPayload)
+        payloadCartLightsHolder.SetActive(true);
+
+        teamTopPanelScore[0].text = data.Data.RedPercent.ToString();
+        teamSBMapScore[0].text = data.Data.RedPercent.ToString();
+        teamTopPanelScore[1].text = data.Data.BluePercent.ToString();
+        teamSBMapScore[1].text = data.Data.BluePercent.ToString();
+
+        payloadCartLightsHolder.SetActive(true);
+
+        if (data.Data.PlayersOnCart == 0)
         {
-            payloadCartLightsHolder.SetActive(true);
-
-            teamTopPanelScore[0].text = data.Data.RedPercent.ToString();
-            teamSBMapScore[0].text = data.Data.RedPercent.ToString();
-            teamTopPanelScore[1].text = data.Data.BluePercent.ToString();
-            teamSBMapScore[1].text = data.Data.BluePercent.ToString();
-
-            payloadCartLightsHolder.SetActive(true);
-
-            if (data.Data.PlayersOnCart == 0)
+            for (int i = 0; i < 3; i++)
             {
-                for (int i = 0; i < 3; i++)
-                {
-                    payloadCartLights[i].GetComponent<Image>().color = Color.black;
-                }
+                payloadCartLights[i].GetComponent<Image>().color = Color.black;
             }
-            if (data.Data.PlayersOnCart == 1)
+        }
+        if (data.Data.PlayersOnCart == 1)
+        {
+            payloadCartLights[0].GetComponent<Image>().color = Color.white;
+            payloadCartLights[1].GetComponent<Image>().color = Color.black;
+            payloadCartLights[2].GetComponent<Image>().color = Color.black;
+        }
+        if (data.Data.PlayersOnCart == 2)
+        {
+            for (int i = 0; i < 2; i++)
             {
-                payloadCartLights[0].GetComponent<Image>().color = Color.white;
-                payloadCartLights[1].GetComponent<Image>().color = Color.black;
-                payloadCartLights[2].GetComponent<Image>().color = Color.black;
+                payloadCartLights[i].GetComponent<Image>().color = Color.white;
             }
-            if (data.Data.PlayersOnCart == 2)
+            payloadCartLights[2].GetComponent<Image>().color = Color.black;
+        }
+        if (data.Data.PlayersOnCart == 3)
+        {
+            for (int i = 0; i < 3; i++)
             {
-                for (int i = 0; i < 2; i++)
-                {
-                    payloadCartLights[i].GetComponent<Image>().color = Color.white;
-                }
-                payloadCartLights[2].GetComponent<Image>().color = Color.black;
-            }
-            if (data.Data.PlayersOnCart == 3)
-            {
-                for (int i = 0; i < 3; i++)
-                {
-                    payloadCartLights[i].GetComponent<Image>().color = Color.white;
-                }
+                payloadCartLights[i].GetComponent<Image>().color = Color.white;
             }
         }
 
