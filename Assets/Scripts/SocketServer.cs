@@ -22,9 +22,11 @@ public class SocketServer : MonoBehaviour
     public static string[] ppArray;   
     private Dictionary<int, string> _indexToPlayername = new Dictionary<int, string>();
 
-    //SetupPlayerNames spn;
     //KF_Manager KFm;
     public SB_Manager mSB;
+    public Payload_Manager mPL;
+    public Domination_Manager mD;
+    public CP_Manager mCP;
 
     private void Start()
     {
@@ -32,9 +34,11 @@ public class SocketServer : MonoBehaviour
         _tcpServer.Start();
         _tcpServer.BeginAcceptTcpClient(TcpConnectionCallback, null);
 
-        //spn = GetComponent<SetupPlayerNames>();
         //KFm = GetComponent<KF_Manager>();
         mSB = mSB.GetComponent<SB_Manager>();
+        mPL = mPL.GetComponent<Payload_Manager>();
+        mD = mD.GetComponent<Domination_Manager>();
+        mCP = mCP.GetComponent<CP_Manager>();
     }
 
     // I HATE C# CALLBACKS WHYYYYYYYYYYYY this is so dumb
@@ -103,28 +107,34 @@ public class SocketServer : MonoBehaviour
         switch (data.Type)
         {
             case "Dead":
-                //kf.GetDataFromSocketServer(data.Type, data.Data.Killer, data.Data.Victum, data.Data.HeadShot, data.Data.WeaponsType);
-                //KFm.data = data;
-                //KFm.StartKFSequence();
+
                 break;
             //case "PP":
             //    //Debug.Log(data.Type);
             //    break;
             case "ScoreBoard":
-                //Debug.Log(data.Type);
                 mSB.data = data;
                 mSB.SetScoreBoard();
-                //SBm.data = data;
-                //SBm.SetKDScores();
+               
                 break;
-            //case "Payload":
-            //    break;
-            //case "Domination":
-            //    //Debug.Log("type = " + data.Type);
-            //    break;
-            //case "Controll":
-            //    //Debug.Log("type = " + data.Type);
-            //    break;
+            case "Payload":
+                mPL.data = data;
+                mD.isDomination = false;
+                mPL.isPayload = true;
+                mCP.isCP = false;
+                break;
+            case "Domination":
+                mD.data = data;
+                mD.isDomination = true;
+                mPL.isPayload = false;
+                mCP.isCP = false;
+                break;
+            case "Controll":
+                mCP.data = data;
+                mD.isDomination = false;
+                mPL.isPayload = false;
+                mCP.isCP = true;
+                break;
         }
     }
 }

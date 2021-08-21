@@ -1,9 +1,11 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PopulateMainScoreboard : MonoBehaviour
 {
     public SB_Manager mSB;
+    public Domination_Manager mD;
 
     [SerializeField]
     private TextMeshProUGUI[] mainSBTeamNames;
@@ -41,12 +43,9 @@ public class PopulateMainScoreboard : MonoBehaviour
     private TextMeshProUGUI[] teamSBHS;
     [SerializeField]          
     private TextMeshProUGUI[] teamSBScore;
-    [SerializeField]
-    private TextMeshProUGUI[] teamTopPanelScore;
-    [SerializeField]
-    private TextMeshProUGUI[] teamSBMapScore;
 
-
+    [SerializeField]
+    private Toggle isPayload;
     // Start is called before the first frame update
     void Start()
     {
@@ -68,11 +67,24 @@ public class PopulateMainScoreboard : MonoBehaviour
         }
         for (int i = 0; i < 2; i++)
         {
-            mainSBTeamNames[i].text = mSB.teamNames[i];
-            verticalSBTeamNames[i].text = mSB.teamNames[i];
+
             teamSBKills[i].text = mSB.teamKills[i].ToString();
             teamSBDeaths[i].text = mSB.teamDeaths[i].ToString();
             teamSBKD[i].text = mSB.teamKD[i].ToString("0.0");
+        }
+        if (isPayload.isOn)
+        {
+            mainSBTeamNames[0].text = mSB.teamNames[1];
+            verticalSBTeamNames[0].text = mSB.teamNames[1];
+            mainSBTeamNames[1].text = mSB.teamNames[0];
+            verticalSBTeamNames[1].text = mSB.teamNames[0];
+        }
+        else
+        {
+            mainSBTeamNames[0].text = mSB.teamNames[0];
+            verticalSBTeamNames[0].text = mSB.teamNames[0];
+            mainSBTeamNames[1].text = mSB.teamNames[1];
+            verticalSBTeamNames[1].text = mSB.teamNames[1];
         }
     }
 }

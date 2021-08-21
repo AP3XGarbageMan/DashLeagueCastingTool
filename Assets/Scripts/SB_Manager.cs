@@ -64,11 +64,17 @@ public class SB_Manager : MonoBehaviour
             teamHS[i] = 0;
             teamKD[i] = 0;
             teamScore[i] = 0;
+            teamMapScore[i] = 0;
         }   
     }
 
     public void SetScoreBoard()
     {
+        teamKills[0] = 0;
+        teamKills[1] = 0;
+        teamDeaths[0] = 0;
+        teamDeaths[1] = 0;
+
         Debug.Log("setting up previous data");
         for (int i = 0; i < data.Data.Names.Length; i++)
         {
@@ -142,13 +148,28 @@ public class SB_Manager : MonoBehaviour
         {
             float k = currentKills[i];
             float d = currentDeaths[i];
-            playerKD[i] = (k / d);
+            if (k != 0 && d != 0)
+            {
+                playerKD[i] = (k / d);
+            }
+            else
+            {
+                playerKD[i] = 0f;
+            }
         }
         for (int i = 0; i < 2; i++)
         {
             float tk = teamKills[i];
             float td = teamDeaths[i];
-            teamKD[i] = (tk / td);
+            
+            if (tk != 0 && td != 0)
+            {
+                teamKD[i] = (tk / td);
+            }
+            else
+            {
+                teamKD[i] = 0f;
+            }
         }
     }
 

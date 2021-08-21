@@ -26,13 +26,9 @@ public class KF_Manager : MonoBehaviour
     public Color killerColor;
     public Color victimColor;
 
-    SetupPlayerNames spn;
-    //SB_Manager sbm;
-
     private void Start()
     {
-        spn = GetComponent<SetupPlayerNames>();
-        //sbm = GetComponent<SB_Manager>();
+
     }
 
     public void StartKFSequence()
@@ -53,8 +49,7 @@ public class KF_Manager : MonoBehaviour
     }
 
     IEnumerator SpawnKillFeed()
-    {
-        Debug.Log("Checking colors and the count is " + spn.playerNames.Length.ToString());
+    { 
 
         //CheckColors(data.Data.Killer, data.Data.Victum);
         //CheckWeaponIcon(data.Data.WeaponsType);
