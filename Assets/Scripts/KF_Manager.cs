@@ -34,8 +34,9 @@ public class KF_Manager : MonoBehaviour
         int typetoImage = GetWeaponIcon(data.Data.WeaponsType);
 
         //// instantiate kill feed
-        GameObject kfTextGO = Instantiate(p_KillFeed, kfParent);
-        kfTextGO.name = data.Data.Killer + "_kf";
+        GameObject kfPrefab = Instantiate(p_KillFeed, kfParent);
+        kfPrefab.name = data.Data.Killer + "_kf";
+        KF_Blok kfBlok = kfPrefab.GetComponent<KF_Blok>();
 
         ////// check if player is streaking. If so, set the streaking parent to active
         // for (int i = 0; i < spn.playerNames.Length; i++)
@@ -54,35 +55,38 @@ public class KF_Manager : MonoBehaviour
         // }
 
         //// setup prefab
-        kfTextGO.transform.GetChild(1).GetChild(0).GetComponent<TextMeshProUGUI>().text = data.Data.Killer;
-        kfTextGO.transform.GetChild(1).GetChild(0).GetComponent<TextMeshProUGUI>().color = colorRed;
-        kfTextGO.transform.GetChild(1).GetChild(2).GetComponent<Image>().sprite = weaponIcon[typetoImage];
-        kfTextGO.transform.GetChild(1).GetChild(4).GetComponent<TextMeshProUGUI>().text = data.Data.Victum;
-        kfTextGO.transform.GetChild(1).GetChild(4).GetComponent<TextMeshProUGUI>().color = colorBlue;
-
-        //// if its a headshot make the gun red
-        if (data.Data.HeadShot)
-        {
-            kfTextGO.transform.GetChild(1).GetChild(2).GetComponent<Image>().color = Color.red;
-        }
+        kfBlok.killerText.text = data.Data.Killer;
+        kfBlok.killerText.color = colorRed;
+        
+        kfBlok.weaponIcon.sprite = weaponIcon[typetoImage];
+        kfBlok.weaponIcon.color = data.Data.HeadShot ? Color.red : Color.white;
+        
+        kfBlok.victumText.text = data.Data.Victum;
+        kfBlok.victumText.color = colorBlue;
 
         yield return new WaitForSeconds(2f);
-
-        float opacty = 1;
         
+        float opacty = 1;
         while (opacty > 0)
         {
             yield return new WaitForEndOfFrame();
             opacty -= Time.deltaTime * 1;
-            var image = kfTextGO.GetComponent<Image>();
-            var currentColor = image.color;
-
-            var newcolor = new Color(currentColor.r, currentColor.g, currentColor.b) {a = opacty};
-            image.color = newcolor;
+            
+            // No global alpha so this is the best we have
+            kfBlok.backGround.color = changeOpatcity(kfBlok.backGround.color, opacty);
+            kfBlok.weaponIcon.color = changeOpatcity(kfBlok.weaponIcon.color, opacty);
+            kfBlok.killerText.color = changeOpatcity(kfBlok.killerText.color, opacty);
+            kfBlok.victumText.color = changeOpatcity(kfBlok.victumText.color, opacty);
+            kfBlok.killStreakCount.color = changeOpatcity(kfBlok.killStreakCount.color, opacty);
+            kfBlok.killStreakInfoText.color = changeOpatcity(kfBlok.killStreakInfoText.color, opacty);
         }
         
-        // Debug.Log("I watied");
-        Destroy(kfTextGO);
+        Destroy(kfPrefab);
+    }
+
+    private Color changeOpatcity(Color oldColor, float opaticty)
+    {
+        return new Color(oldColor.r, oldColor.g, oldColor.b, opaticty);
     }
 
     //public void CheckColors(string _killer, string _victim)
