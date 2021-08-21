@@ -22,9 +22,9 @@ public class SocketServer : MonoBehaviour
     public static string[] ppArray;   
     private Dictionary<int, string> _indexToPlayername = new Dictionary<int, string>();
 
-    SetupPlayerNames spn;
-    KF_Manager KFm;
-    //SB_Manager SBm;
+    //SetupPlayerNames spn;
+    //KF_Manager KFm;
+    public SB_Manager mSB;
 
     private void Start()
     {
@@ -32,9 +32,9 @@ public class SocketServer : MonoBehaviour
         _tcpServer.Start();
         _tcpServer.BeginAcceptTcpClient(TcpConnectionCallback, null);
 
-        spn = GetComponent<SetupPlayerNames>();
-        KFm = GetComponent<KF_Manager>();
-        //SBm = GetComponent<SB_Manager>();
+        //spn = GetComponent<SetupPlayerNames>();
+        //KFm = GetComponent<KF_Manager>();
+        mSB = mSB.GetComponent<SB_Manager>();
     }
 
     // I HATE C# CALLBACKS WHYYYYYYYYYYYY this is so dumb
@@ -104,16 +104,16 @@ public class SocketServer : MonoBehaviour
         {
             case "Dead":
                 //kf.GetDataFromSocketServer(data.Type, data.Data.Killer, data.Data.Victum, data.Data.HeadShot, data.Data.WeaponsType);
-                KFm.data = data;
-                KFm.StartKFSequence();
+                //KFm.data = data;
+                //KFm.StartKFSequence();
                 break;
             //case "PP":
             //    //Debug.Log(data.Type);
             //    break;
             case "ScoreBoard":
                 //Debug.Log(data.Type);
-                spn.data = data;
-                spn.SetupPlayerInfo();
+                mSB.data = data;
+                mSB.SetScoreBoard();
                 //SBm.data = data;
                 //SBm.SetKDScores();
                 break;

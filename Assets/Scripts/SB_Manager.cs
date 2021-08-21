@@ -1,68 +1,133 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class SB_Manager : MonoBehaviour
 {
     public Root data;
+    public PopulateMainScoreboard pmsb;
 
     public int[] previousKills = new int[10];
     public int[] previousDeaths = new int[10];
     public int[] currentKills = new int[10];
     public int[] currentDeaths = new int[10];
+    public int[] currentScore = new int[10];
+    public int[] currentHS = new int[10];
     public int[] teamList = new int[10];
+
     public int[] teamKills = new int[2];
     public int[] teamDeaths = new int[2];
+    public int[] teamScore = new int[2];
+    public int[] teamHS = new int[2];
+    public int[] teamMapScore = new int[2];
+
     public int[] currentKillStreak = new int[10];
     public int[] highestKillStreak = new int[10];
 
     public float[] playerKD = new float[10];
+    public float[] teamKD = new float[2];
 
     public bool[] isDead = new bool[10];
     public bool[] isStreaking = new bool[10];
 
-    SetupPlayerNames spn;
+    public string[] playerNamesWithSpaces = new string[10];
+
+    public string[] teamNames = new string[2];
 
     private void Start()
     {
-        spn = GetComponent<SetupPlayerNames>();
-        for (int i = 0; i < spn.playerNames.Length; i++)
+        pmsb = pmsb.GetComponent<PopulateMainScoreboard>();
+
+        for (int i = 0; i < data.Data.Names.Length; i++)
         {
             previousKills[i] = 0;
             previousDeaths[i] = 0;
             currentKills[i] = 0;
             currentDeaths[i] = 0;
-        }        
+            currentScore[i] = 0;
+            currentHS[i] = 0;
+            teamList[i] = 0;
+            currentKillStreak[i] = 0;
+            highestKillStreak[i] = 0;
+            playerKD[i] = 0;
+
+            isDead[i] = false;
+            isStreaking[i] = false;
+
+            playerNamesWithSpaces[i] = "name";
+        }
+        for (int i = 0; i < 2; i++)
+        {
+            teamKills[i] = 0;
+            teamDeaths[i] = 0;
+            teamHS[i] = 0;
+            teamKD[i] = 0;
+            teamScore[i] = 0;
+        }   
     }
 
-    public void SetKDScores()
+    public void SetScoreBoard()
     {
-        Debug.Log("starting sb");
-        for (int i = 0; i < spn.playerNames.Length; i++)
+        Debug.Log("setting up previous data");
+        for (int i = 0; i < data.Data.Names.Length; i++)
         {
             previousDeaths[i] = currentDeaths[i];
             previousKills[i] = currentKills[i];
         }
-            for (int i = 0; i < spn.playerNames.Length; i++)
+        for (int i = 0; i < data.Data.Names.Length; i++)
         {
             currentKills[i] = data.Data.Kills[i];
             currentDeaths[i] = data.Data.Deaths[i];
+            currentScore[i] = data.Data.Scores[i];
             teamList[i] = data.Data.Teams[i];
         }
-        Debug.Log("starting kd");
-        for (int i = 0; i < spn.playerNames.Length; i++)
+        for (int i = 0; i < data.Data.Names.Length; i++)
         {
             if (data.Data.Teams[i] == 0)
             {
-                currentKills[0] += data.Data.Kills[i];
-                currentDeaths[0] += data.Data.Deaths[i];
+                teamKills[0] += data.Data.Kills[i];
+                teamDeaths[0] += data.Data.Deaths[i];
             }
             if (data.Data.Teams[i] == 1)
             {
-                currentKills[1] += data.Data.Kills[i];
-                currentDeaths[1] += data.Data.Deaths[i];
+                teamKills[1] += data.Data.Kills[i];
+                teamDeaths[1] += data.Data.Deaths[i];
             }
+        }
 
+        for (int i = 0; i < data.Data.Names.Length; i++)
+        {
+            // setup for [team] [name name]
+            string[] splitNames = data.Data.Names[i].Split();
+
+            if (splitNames.Length > 1)
+            {
+                if (i < 5)
+                {
+                    teamNames[0] = splitNames[0];
+                }
+                // blue team
+                if (i > 4)
+                {
+                    teamNames[1] = splitNames[0];
+                }
+
+
+                // [name with spaces] setup
+                string nameWithSpaces = "";
+                for (int j = 1; j < splitNames.Length; j++)
+                {
+                    nameWithSpaces += splitNames[j];
+                }
+
+                playerNamesWithSpaces[i] = nameWithSpaces;
+            }
+            else
+            {
+                playerNamesWithSpaces[i] = data.Data.Names[i];
+
+            }
         }
 
         Debug.Log("calculate kd");
@@ -73,14 +138,18 @@ public class SB_Manager : MonoBehaviour
 
     public void CalculateKD()
     {
-        for (int i = 0; i < spn.playerNames.Length; i++)
+        for (int i = 0; i < data.Data.Names.Length; i++)
         {
             float k = currentKills[i];
             float d = currentDeaths[i];
             playerKD[i] = (k / d);
         }
-
-        CheckIfOnStreak();
+        for (int i = 0; i < 2; i++)
+        {
+            float tk = teamKills[i];
+            float td = teamDeaths[i];
+            teamKD[i] = (tk / td);
+        }
     }
 
     public void CheckIfOnStreak()
@@ -93,9 +162,6 @@ public class SB_Manager : MonoBehaviour
                 isDead[i] = true;
                 currentKillStreak[i] = 0;
                 isStreaking[i] = false;
-                //Debug.Log("should be starting a kill bar coroutine");
-                //coroutineDeathBar = SpawnDB(4.0f, i);
-                //StartCoroutine(coroutineDeathBar);
             }
             if (currentKills[i] > previousKills[i])
             {
@@ -109,7 +175,7 @@ public class SB_Manager : MonoBehaviour
                 }
             }
             SetHighKillStreak(i);
-        }     
+        }
     }
 
     // check if streaking, set high ks
