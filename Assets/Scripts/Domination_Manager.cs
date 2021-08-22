@@ -21,6 +21,8 @@ public class Domination_Manager : MonoBehaviour
     private Toggle wwToggle;
     [SerializeField]
     private Toggle quarryToggle;
+    [SerializeField]
+    private Toggle shutDownDomToggle;
 
     [SerializeField]
     private GameObject wwMapParent;
@@ -56,6 +58,11 @@ public class Domination_Manager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (shutDownDomToggle.isOn)
+        {
+            ShutDownDomination();
+        }
+
         if (isBlueCountDown)
         {
             domTeamColorFlash.gameObject.SetActive(true);
@@ -153,5 +160,16 @@ public class Domination_Manager : MonoBehaviour
                 }
             }
         }
+    }
+
+    public void ShutDownDomination()
+    {
+        quarryMapParent.SetActive(false);
+        wwMapParent.SetActive(false);
+        isRedCountDown = false;
+        isBlueCountDown = false;
+        wwToggle.isOn = false;
+        quarryToggle.isOn = false;
+        shutDownDomToggle.isOn = false;
     }
 }

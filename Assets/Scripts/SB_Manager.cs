@@ -32,6 +32,7 @@ public class SB_Manager : MonoBehaviour
     public bool[] isStreaking = new bool[10];
 
     public string[] playerNamesWithSpaces = new string[10];
+    public string[] playerNames = new string[10];
 
     public string[] teamNames = new string[2];
 
@@ -55,6 +56,8 @@ public class SB_Manager : MonoBehaviour
             isDead[i] = false;
             isStreaking[i] = false;
 
+
+            playerNames[i] = "name";
             playerNamesWithSpaces[i] = "name";
         }
         for (int i = 0; i < 2; i++)
@@ -74,8 +77,10 @@ public class SB_Manager : MonoBehaviour
         teamKills[1] = 0;
         teamDeaths[0] = 0;
         teamDeaths[1] = 0;
+        teamHS[0] = 0;
+        teamHS[1] = 0;
 
-        Debug.Log("setting up previous data");
+        //Debug.Log("setting up previous data");
         for (int i = 0; i < data.Data.Names.Length; i++)
         {
             previousDeaths[i] = currentDeaths[i];
@@ -94,16 +99,19 @@ public class SB_Manager : MonoBehaviour
             {
                 teamKills[0] += data.Data.Kills[i];
                 teamDeaths[0] += data.Data.Deaths[i];
+                teamHS[0] += currentHS[i];
             }
             if (data.Data.Teams[i] == 1)
             {
                 teamKills[1] += data.Data.Kills[i];
                 teamDeaths[1] += data.Data.Deaths[i];
+                teamHS[1] += currentHS[i];
             }
         }
 
         for (int i = 0; i < data.Data.Names.Length; i++)
         {
+            playerNames[i] = data.Data.Names[i];
             // setup for [team] [name name]
             string[] splitNames = data.Data.Names[i].Split();
 

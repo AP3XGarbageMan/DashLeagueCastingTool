@@ -27,6 +27,7 @@ public class SocketServer : MonoBehaviour
     public Payload_Manager mPL;
     public Domination_Manager mD;
     public CP_Manager mCP;
+    public KF_Manager mKF;
 
     private void Start()
     {
@@ -39,6 +40,7 @@ public class SocketServer : MonoBehaviour
         mPL = mPL.GetComponent<Payload_Manager>();
         mD = mD.GetComponent<Domination_Manager>();
         mCP = mCP.GetComponent<CP_Manager>();
+        mKF = mKF.GetComponent<KF_Manager>();
     }
 
     // I HATE C# CALLBACKS WHYYYYYYYYYYYY this is so dumb
@@ -107,7 +109,8 @@ public class SocketServer : MonoBehaviour
         switch (data.Type)
         {
             case "Dead":
-
+                mKF.data = data;
+                mKF.killHappened = true;
                 break;
             //case "PP":
             //    //Debug.Log(data.Type);
