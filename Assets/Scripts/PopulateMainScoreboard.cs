@@ -16,7 +16,8 @@ public class PopulateMainScoreboard : MonoBehaviour
     private TextMeshProUGUI[] mainSBTeamNames;
     [SerializeField]
     private TextMeshProUGUI[] verticalSBTeamNames;
-
+    [SerializeField]
+    private GameObject[] verticalTeamBoxes;
 
     [SerializeField]
     private TextMeshProUGUI[] mainSBNames;
@@ -28,6 +29,8 @@ public class PopulateMainScoreboard : MonoBehaviour
     private TextMeshProUGUI[] mainSBKD;
     [SerializeField]
     private TextMeshProUGUI[] mainSBHS;
+    [SerializeField]
+    private TextMeshProUGUI[] mainSBPlayerScore;
     [SerializeField]
     private TextMeshProUGUI[] mainSBScore;
 
@@ -46,8 +49,11 @@ public class PopulateMainScoreboard : MonoBehaviour
     private TextMeshProUGUI[] teamSBKD;
     [SerializeField]          
     private TextMeshProUGUI[] teamSBHS;
-    [SerializeField]          
+    [SerializeField]
     private TextMeshProUGUI[] teamSBScore;
+
+    [SerializeField]
+    private TextMeshProUGUI[] highestKS;
 
     [SerializeField]
     private Toggle isPayload;
@@ -79,17 +85,20 @@ public class PopulateMainScoreboard : MonoBehaviour
             mainSBDeaths[i].text = mSB.currentDeaths[i].ToString();
             mainSBKD[i].text = mSB.playerKD[i].ToString("0.0");
             mainSBHS[i].text = mSB.currentHS[i].ToString();
+            mainSBPlayerScore[i].text = mSB.currentScore[i].ToString();
             verticalSBNames[i].text = mSB.playerNamesWithSpaces[i];
             verticalSBKills[i].text = mSB.currentKills[i].ToString();
             verticalSBDeaths[i].text = mSB.currentDeaths[i].ToString();
+            
+            //highestKS[i].text = mSB.highestKillStreak[i].ToString();
         }
         for (int i = 0; i < 2; i++)
         {
-
             teamSBKills[i].text = mSB.teamKills[i].ToString();
             teamSBDeaths[i].text = mSB.teamDeaths[i].ToString();
             teamSBKD[i].text = mSB.teamKD[i].ToString("0.0");
             teamSBHS[i].text = mSB.teamHS[i].ToString();
+            teamSBScore[i].text = mSB.teamScore[i].ToString();
         }
         if (isPayload.isOn)
         {
@@ -108,18 +117,34 @@ public class PopulateMainScoreboard : MonoBehaviour
         if (lvR.isOn)
         {
             ChangeVSColor(verticalSBBackgroundL, colorRed, lvR);
+            for (int i = 5; i < 10; i++)
+            {
+                verticalTeamBoxes[i].GetComponent<Image>().color = colorRed;
+            }
         }
         if (lvB.isOn)
         {
             ChangeVSColor(verticalSBBackgroundL, colorBlue, lvB);
+            for (int i = 5; i < 10; i++)
+            {
+                verticalTeamBoxes[i].GetComponent<Image>().color = colorBlue;
+            }
         }
         if (rvR.isOn)
         {
             ChangeVSColor(verticalSBBackgroundR, colorRed, rvR);
+            for (int i = 0; i < 5; i++)
+            {
+                verticalTeamBoxes[i].GetComponent<Image>().color = colorRed;
+            }
         }
         if (rvB.isOn)
         {
             ChangeVSColor(verticalSBBackgroundR, colorBlue, rvB);
+            for (int i = 0; i < 5; i++)
+            {
+                verticalTeamBoxes[i].GetComponent<Image>().color = colorBlue;
+            }
         }
     }
 

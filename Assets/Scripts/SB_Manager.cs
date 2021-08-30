@@ -73,12 +73,13 @@ public class SB_Manager : MonoBehaviour
 
     public void SetScoreBoard()
     {
-        teamKills[0] = 0;
-        teamKills[1] = 0;
-        teamDeaths[0] = 0;
-        teamDeaths[1] = 0;
-        teamHS[0] = 0;
-        teamHS[1] = 0;
+        for (int i = 0; i < 2; i++)
+        {
+            teamKills[i] = 0;
+            teamDeaths[i] = 0;
+            teamHS[i] = 0;
+            teamScore[i] = 0;
+        }
 
         //Debug.Log("setting up previous data");
         for (int i = 0; i < data.Data.Names.Length; i++)
@@ -100,12 +101,14 @@ public class SB_Manager : MonoBehaviour
                 teamKills[0] += data.Data.Kills[i];
                 teamDeaths[0] += data.Data.Deaths[i];
                 teamHS[0] += currentHS[i];
+                teamScore[0] += currentScore[i];
             }
             if (data.Data.Teams[i] == 1)
             {
                 teamKills[1] += data.Data.Kills[i];
                 teamDeaths[1] += data.Data.Deaths[i];
                 teamHS[1] += currentHS[i];
+                teamScore[1] += currentScore[i];
             }
         }
 
@@ -216,6 +219,36 @@ public class SB_Manager : MonoBehaviour
             {
                 highestKillStreak[_i] = currentKillStreak[_i];
             }
+        }
+    }
+
+    public void ResetData()
+    {
+
+        for (int i = 0; i < data.Data.Names.Length; i++)
+        {
+            previousKills[i] = 0;
+            previousDeaths[i] = 0;
+            currentKills[i] = 0;
+            currentDeaths[i] = 0;
+            currentScore[i] = 0;
+            currentHS[i] = 0;
+            teamList[i] = 0;
+            currentKillStreak[i] = 0;
+            highestKillStreak[i] = 0;
+            playerKD[i] = 0;
+
+            isDead[i] = false;
+            isStreaking[i] = false;
+        }
+        for (int i = 0; i < 2; i++)
+        {
+            teamKills[i] = 0;
+            teamDeaths[i] = 0;
+            teamHS[i] = 0;
+            teamKD[i] = 0;
+            teamScore[i] = 0;
+            teamMapScore[i] = 0;
         }
     }
 }

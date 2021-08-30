@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 
 public class Domination_Manager : MonoBehaviour
 {
@@ -10,12 +11,16 @@ public class Domination_Manager : MonoBehaviour
     public bool isDomination = false;
     public bool isRedCountDown = false;
     public bool isBlueCountDown = false;
+    public bool isRedCountingDown = false;
+    public bool isBlueCountingDown = false;
     public int[] buttonInfoTeams = new int[3];
 
     [SerializeField]
     private TextMeshProUGUI[] teamTopPanelScore;
     [SerializeField]
     private TextMeshProUGUI[] teamSBMapScore;
+    [SerializeField]
+    private TextMeshProUGUI[] teamCD;
 
     [SerializeField]
     private Toggle wwToggle;
@@ -25,9 +30,9 @@ public class Domination_Manager : MonoBehaviour
     private Toggle shutDownDomToggle;
 
     [SerializeField]
-    private GameObject wwMapParent;
+    private GameObject wwMMParent;
     [SerializeField]
-    private GameObject quarryMapParent;
+    private GameObject quarryMMParent;
     [SerializeField]
     private GameObject payloadCartLightsHolder;
     [SerializeField]
@@ -43,6 +48,15 @@ public class Domination_Manager : MonoBehaviour
 
     public Color colorBlue = new Color32(8, 135, 255, 255);
     public Color colorRed = new Color32(240, 14, 52, 255);
+
+    private int countDownTimerIntR = 0;
+    private int countDownTimerIntB = 0;
+
+    private int cdR = 0;
+    private int cdB = 0;
+
+    private IEnumerator rcd;
+    private IEnumerator bcd;
 
     // Start is called before the first frame update
     void Start()
@@ -68,19 +82,34 @@ public class Domination_Manager : MonoBehaviour
             domTeamColorFlash.gameObject.SetActive(true);
             domTeamColorFlash.GetComponent<Image>().color = colorBlue;
         }
+        if (!isBlueCountDown)
+        {
+            countDownTimerIntB = 5;
+        }
+
         if (isRedCountDown)
         {
             domTeamColorFlash.gameObject.SetActive(true);
             domTeamColorFlash.GetComponent<Image>().color = colorRed;
         }
+        if (!isRedCountDown)
+        {
+            countDownTimerIntR = 5;
+        }
 
         if (!isBlueCountDown && !isRedCountDown)
         {
             domTeamColorFlash.gameObject.SetActive(false);
+            countDownTimerIntR = 5;
+            countDownTimerIntB = 5;
         }
+
 
         if (isDomination)
         {
+            
+            teamCD[0].text = cdR.ToString();
+            teamCD[1].text = cdB.ToString();
             teamTopPanelScore[0].text = data.Data.RedScore.ToString();
             teamSBMapScore[0].text = data.Data.RedScore.ToString();
             teamTopPanelScore[1].text = data.Data.BlueScore.ToString();
@@ -88,13 +117,13 @@ public class Domination_Manager : MonoBehaviour
 
             if (wwToggle.isOn)
             {
-                wwMapParent.SetActive(true);
-                quarryMapParent.SetActive(false);
+                wwMMParent.SetActive(true);
+                quarryMMParent.SetActive(false);
             }
             if (quarryToggle.isOn)
             {
-                quarryMapParent.SetActive(true);
-                wwMapParent.SetActive(false);
+                quarryMMParent.SetActive(true);
+                wwMMParent.SetActive(false);
 
             }
 
@@ -105,7 +134,7 @@ public class Domination_Manager : MonoBehaviour
 
             for (int j = 0; j < 3; j++)
             {
-                if (wwMapParent.activeInHierarchy == true)
+                if (wwMMParent.activeInHierarchy == true)
                 {
                     if (data.Data.ButtonInfo[j].Team == -1)
                     {
@@ -127,7 +156,7 @@ public class Domination_Manager : MonoBehaviour
                         domButtonCountBlue++;
                     }
                 }
-                if (quarryMapParent.activeInHierarchy == true)
+                if (quarryMMParent.activeInHierarchy == true)
                 {
                     if (data.Data.ButtonInfo[j].Team == -1)
                     {
@@ -153,10 +182,14 @@ public class Domination_Manager : MonoBehaviour
                 if (domButtonCountRed == 3)
                 {
                     isRedCountDown = true;
+                    //isRedCountingDown = true;
+                    //StartCountDownTimer("red");
                 }
                 if (domButtonCountBlue == 3)
                 {
                     isBlueCountDown = true;
+                    //isBlueCountingDown = true;
+                    //StartCountDownTimer("blue");
                 }
             }
         }
@@ -164,12 +197,61 @@ public class Domination_Manager : MonoBehaviour
 
     public void ShutDownDomination()
     {
-        quarryMapParent.SetActive(false);
-        wwMapParent.SetActive(false);
+        quarryMMParent.SetActive(false);
+        wwMMParent.SetActive(false);
         isRedCountDown = false;
         isBlueCountDown = false;
         wwToggle.isOn = false;
         quarryToggle.isOn = false;
         shutDownDomToggle.isOn = false;
     }
+
+    //public void CountOne(string _team)
+    //{
+    //    if (_team == "red")
+    //        cdR++;
+    //}
+
+    //void StartCountDownTimer(string _team)
+    //{
+    //    if (isRedCountDown || isBlueCountDown)
+    //    {
+    //        if (_team == "red")
+    //        {
+    //            rcd = RedCountDown(_team);
+    //            StartCoroutine(rcd);
+    //        }
+    //        if (_team == "blue")
+    //        {
+    //            bcd = BlueCountDown(_team);
+    //            StartCoroutine(bcd);
+    //        }
+    //    }
+    //}
+
+    //IEnumerator RedCountDown(string _team)
+    //{
+    //    isRedCountingDown = false;
+    //    yield return new WaitForSeconds(1f);
+    //    isRedCountingDown = true;
+    //    countDownTimerIntR--;
+    //    if (countDownTimerTMP[0].transform.parent.gameObject.activeInHierarchy == true)
+    //    {
+    //        countDownTimerTMP[0].text = countDownTimerIntR.ToString();
+    //    }
+    //    StartCountDownTimer(_team);
+    //}
+
+    //IEnumerator BlueCountDown(string _team)
+    //{
+    //    isBlueCountingDown = false;
+    //    yield return new WaitForSeconds(1f);
+    //    isBlueCountingDown = true;
+    //    countDownTimerIntB--;
+    //    if (countDownTimerTMP[1].transform.parent.gameObject.activeInHierarchy == true)
+    //    {
+    //        countDownTimerTMP[1].text = countDownTimerIntB.ToString();
+    //    }
+    //    StartCountDownTimer(_team);
+    //}
 }

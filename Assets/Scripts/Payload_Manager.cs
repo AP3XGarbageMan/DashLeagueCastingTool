@@ -15,9 +15,17 @@ public class Payload_Manager : MonoBehaviour
 
     [SerializeField]
     private GameObject payloadCartLightsHolder;
-
+    [SerializeField]
+    private GameObject lpMapParent;
+    [SerializeField]
+    private GameObject canyonMMMapParent;
     [SerializeField]
     private GameObject[] payloadCartLights;
+
+    [SerializeField]
+    private Toggle lpMMToggle;
+    [SerializeField]
+    private Toggle canyonMMToggle;
 
     // Start is called before the first frame update
     void Start()
@@ -30,7 +38,25 @@ public class Payload_Manager : MonoBehaviour
     {
         if (isPayload)
         {
+            if (lpMMToggle.isOn)
+            {
+                lpMapParent.SetActive(true);
+            }
+            else
+            {
+                lpMapParent.SetActive(false);  
+            }
+            if (canyonMMToggle.isOn)
+            {
+                canyonMMMapParent.SetActive(true);
+            }
+            else
+            {
+                canyonMMMapParent.SetActive(false);
+            }
+
             payloadCartLightsHolder.SetActive(true);
+
 
             teamTopPanelScore[0].text = data.Data.RedPercent.ToString();
             teamSBMapScore[0].text = data.Data.RedPercent.ToString();
@@ -62,6 +88,14 @@ public class Payload_Manager : MonoBehaviour
             }
             if (data.Data.PlayersOnCart == 3)
             {
+                for (int i = 0; i < 3; i++)
+                {
+                    payloadCartLights[i].GetComponent<Image>().color = Color.white;
+                }
+            }
+            if (data.Data.PlayersOnCart > 3)
+            {
+                // party bus!!!!
                 for (int i = 0; i < 3; i++)
                 {
                     payloadCartLights[i].GetComponent<Image>().color = Color.white;
