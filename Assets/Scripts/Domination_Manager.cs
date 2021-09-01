@@ -7,6 +7,7 @@ public class Domination_Manager : MonoBehaviour
 {
     public Root data;
     public SB_Manager mSB;
+    public Payload_Manager mP;
 
     public bool isDomination = false;
     public bool isRedCountDown = false;
@@ -62,7 +63,8 @@ public class Domination_Manager : MonoBehaviour
     void Start()
     {
         mSB = mSB.GetComponent<SB_Manager>();
-
+        mP = mP.GetComponent<Payload_Manager>();
+        
         for (int i = 0; i < 3; i++)
         {
             buttonInfoTeams[i] = 0;
@@ -107,7 +109,8 @@ public class Domination_Manager : MonoBehaviour
 
         if (isDomination)
         {
-            
+            mP.TogglePartyBus(false);
+
             teamCD[0].text = cdR.ToString();
             teamCD[1].text = cdB.ToString();
             teamTopPanelScore[0].text = data.Data.RedScore.ToString();

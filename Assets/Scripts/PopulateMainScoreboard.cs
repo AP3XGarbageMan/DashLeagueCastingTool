@@ -78,72 +78,74 @@ public class PopulateMainScoreboard : MonoBehaviour
 
     private void Update()
     {
-        for (int i = 0; i < mSB.playerNamesWithSpaces.Length; i++)
+        if (mSB.sortingPlayers)
         {
-            mainSBNames[i].text = mSB.playerNamesWithSpaces[i];
-            mainSBKills[i].text = mSB.currentKills[i].ToString();
-            mainSBDeaths[i].text = mSB.currentDeaths[i].ToString();
-            mainSBKD[i].text = mSB.playerKD[i].ToString("0.0");
-            mainSBHS[i].text = mSB.currentHS[i].ToString();
-            mainSBPlayerScore[i].text = mSB.currentScore[i].ToString();
-            verticalSBNames[i].text = mSB.playerNamesWithSpaces[i];
-            verticalSBKills[i].text = mSB.currentKills[i].ToString();
-            verticalSBDeaths[i].text = mSB.currentDeaths[i].ToString();
-            
-            //highestKS[i].text = mSB.highestKillStreak[i].ToString();
-        }
-        for (int i = 0; i < 2; i++)
-        {
-            teamSBKills[i].text = mSB.teamKills[i].ToString();
-            teamSBDeaths[i].text = mSB.teamDeaths[i].ToString();
-            teamSBKD[i].text = mSB.teamKD[i].ToString("0.0");
-            teamSBHS[i].text = mSB.teamHS[i].ToString();
-            teamSBScore[i].text = mSB.teamScore[i].ToString();
-        }
-        if (isPayload.isOn)
-        {
-            mainSBTeamNames[0].text = mSB.teamNames[1];
-            verticalSBTeamNames[0].text = mSB.teamNames[1];
-            mainSBTeamNames[1].text = mSB.teamNames[0];
-            verticalSBTeamNames[1].text = mSB.teamNames[0];
-        }
-        else
-        {
-            mainSBTeamNames[0].text = mSB.teamNames[0];
-            verticalSBTeamNames[0].text = mSB.teamNames[0];
-            mainSBTeamNames[1].text = mSB.teamNames[1];
-            verticalSBTeamNames[1].text = mSB.teamNames[1];
-        }
-        if (lvR.isOn)
-        {
-            ChangeVSColor(verticalSBBackgroundL, colorRed, lvR);
-            for (int i = 5; i < 10; i++)
+            for (int i = 0; i < mSB.pIG.Count; i++)
             {
-                verticalTeamBoxes[i].GetComponent<Image>().color = colorRed;
+                mainSBNames[i].text = mSB.pIG[i].ShortName;
+                mainSBKills[i].text = mSB.pIG[i].Kills.ToString();
+                mainSBDeaths[i].text = mSB.pIG[i].Deaths.ToString();
+                mainSBKD[i].text = mSB.playerKD[i].ToString("0.0");
+                mainSBHS[i].text = mSB.pIG[i].headShots.ToString();
+                mainSBPlayerScore[i].text = mSB.pIG[i].Score.ToString();
+                verticalSBNames[i].text = mSB.pIG[i].ShortName;
+                verticalSBKills[i].text = mSB.pIG[i].Kills.ToString();
+                verticalSBDeaths[i].text = mSB.pIG[i].Deaths.ToString();
+                highestKS[i].text = mSB.pIG[i].HighestKillStreak.ToString();
             }
-        }
-        if (lvB.isOn)
-        {
-            ChangeVSColor(verticalSBBackgroundL, colorBlue, lvB);
-            for (int i = 5; i < 10; i++)
+            for (int i = 0; i < 2; i++)
             {
-                verticalTeamBoxes[i].GetComponent<Image>().color = colorBlue;
+                teamSBKills[i].text = mSB.teamKills[i].ToString();
+                teamSBDeaths[i].text = mSB.teamDeaths[i].ToString();
+                teamSBKD[i].text = mSB.teamKD[i].ToString("0.0");
+                teamSBHS[i].text = mSB.teamHS[i].ToString();
+                teamSBScore[i].text = mSB.teamScore[i].ToString();
             }
-        }
-        if (rvR.isOn)
-        {
-            ChangeVSColor(verticalSBBackgroundR, colorRed, rvR);
-            for (int i = 0; i < 5; i++)
+            if (isPayload.isOn)
             {
-                verticalTeamBoxes[i].GetComponent<Image>().color = colorRed;
+                mainSBTeamNames[0].text = mSB.pIG[0].TeamName;
+                verticalSBTeamNames[0].text = mSB.pIG[0].TeamName;
+                mainSBTeamNames[1].text = mSB.pIG[9].TeamName;
+                verticalSBTeamNames[1].text = mSB.pIG[9].TeamName;
             }
-        }
-        if (rvB.isOn)
-        {
-            ChangeVSColor(verticalSBBackgroundR, colorBlue, rvB);
-            for (int i = 0; i < 5; i++)
+            else
             {
-                verticalTeamBoxes[i].GetComponent<Image>().color = colorBlue;
+                mainSBTeamNames[0].text = mSB.pIG[9].TeamName;
+                verticalSBTeamNames[0].text = mSB.pIG[9].TeamName;
+                mainSBTeamNames[1].text = mSB.pIG[0].TeamName;
+                verticalSBTeamNames[1].text = mSB.pIG[0].TeamName;
+            }
+            if (lvR.isOn)
+            {
+                ChangeVSColor(verticalSBBackgroundL, colorRed, lvR);
+                for (int i = 5; i < 10; i++)
+                {
+                    verticalTeamBoxes[i].GetComponent<Image>().color = colorRed;
+                }
+            }
+            if (lvB.isOn)
+            {
+                ChangeVSColor(verticalSBBackgroundL, colorBlue, lvB);
+                for (int i = 5; i < 10; i++)
+                {
+                    verticalTeamBoxes[i].GetComponent<Image>().color = colorBlue;
+                }
+            }
+            if (rvR.isOn)
+            {
+                ChangeVSColor(verticalSBBackgroundR, colorRed, rvR);
+                for (int i = 0; i < 5; i++)
+                {
+                    verticalTeamBoxes[i].GetComponent<Image>().color = colorRed;
+                }
+            }
+            if (rvB.isOn)
+            {
+                ChangeVSColor(verticalSBBackgroundR, colorBlue, rvB);
+                for (int i = 0; i < 5; i++)
+                {
+                    verticalTeamBoxes[i].GetComponent<Image>().color = colorBlue;
+                }
             }
         }
     }

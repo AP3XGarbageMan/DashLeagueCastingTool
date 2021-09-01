@@ -15,15 +15,15 @@ public class KF_Manager : MonoBehaviour
 
     [SerializeField]
     private GameObject p_KillFeed;
-    
+
     [SerializeField]
     private Transform kfParent;
     [SerializeField]
     private Toggle kfBack;
-    
+
     [SerializeField]
     private Sprite[] weaponIcon;
-    
+
     [SerializeField]
     private GameObject[] deathBars;
 
@@ -33,9 +33,12 @@ public class KF_Manager : MonoBehaviour
     public Color victimColor;
 
     public bool killHappened = false;
-    
+
     [SerializeField]
-    private Toggle swapKFColors; 
+    private Toggle swapKFColors;
+
+    public string cutKillerName = "";
+    public string cutVictimName = "";
 
     private void Start()
     {
@@ -52,6 +55,32 @@ public class KF_Manager : MonoBehaviour
         }
     }
 
+    public void GetShortName(string _type, string _name)
+    {
+        if (_type == "Killer")
+        {
+            for (int i = 0; i < mSB.pIG.Count; i++)
+            {
+                // check is name is == killer
+                if (mSB.pIG[i].Name == data.Data.Killer)
+                {
+                    cutKillerName = mSB.pIG[i].ShortName;
+                }
+            }
+        }
+        if (_type == "Victim")
+        {
+            for (int i = 0; i < mSB.pIG.Count; i++)
+            {
+                // check is name is == killer
+                if (mSB.pIG[i].Name == data.Data.Victum)
+                {
+                    cutVictimName = mSB.pIG[i].ShortName;
+                }
+            }
+        }
+    }
+
     public void StartKFSequence()
     {
         //Debug.Log("starting kf sequence");
@@ -60,7 +89,7 @@ public class KF_Manager : MonoBehaviour
     }
 
     IEnumerator SpawnKillFeed()
-    {
+    { 
         CheckColors(data.Data.Killer, data.Data.Victum);
         CheckWeaponIcon(data.Data.WeaponsType);
 
@@ -68,29 +97,42 @@ public class KF_Manager : MonoBehaviour
         GameObject kfTextGO = Instantiate(p_KillFeed, kfParent);
         kfTextGO.name = data.Data.Killer + "_kf";
 
-        string cutKillerName = "";
-        string cutVictimName = "";
-
         // check if player is streaking. If so, set the streaking parent to active
-        for (int i = 0; i < mSB.playerNames.Length; i++)
+        for (int i = 0; i < mSB.pIG.Count; i++)
         {
-            if (mSB.playerNames[i] == data.Data.Killer)
+            GetShortName("Killer", data.Data.Killer);
+            GetShortName("Victim", data.Data.Victum);
+
+            // check is name is == killer
+            if (mSB.pIG[i].Name == data.Data.Killer)
             {
-                cutKillerName = mSB.playerNamesWithSpaces[i];
-                if (mSB.isStreaking[i])
+                // for player name in list of pIG
+                if (mSB.sortingPlayers)
                 {
-                    kfTextGO.transform.GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>().text = mSB.currentKillStreak[i].ToString();
+                    mSB.pIG[i].hasKilled.Add(cutVictimName);
+                }
+                // check if streaking
+                if (mSB.pIG[i].isStreaking)
+                {
+                    kfTextGO.transform.GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>().text = mSB.pIG[i].CurrentKillStreak.ToString();
                 }
                 else
                 {
                     kfTextGO.transform.GetChild(0).gameObject.SetActive(false);
                 }
             }
-            if (mSB.playerNames[i] == data.Data.Victum)
+
+            // find the victum
+            if (mSB.pIG[i].Name == data.Data.Victum)
             {
-                cutVictimName = mSB.playerNamesWithSpaces[i];
+                if (mSB.sortingPlayers)
+                {                        
+                    mSB.pIG[i].killedBy.Add(cutKillerName);             
+                }            
             }
         }
+
+
 
         // setup prefab
         kfTextGO.transform.GetChild(1).GetChild(0).GetComponent<TextMeshProUGUI>().text = cutKillerName;
@@ -101,7 +143,7 @@ public class KF_Manager : MonoBehaviour
         else
         {
             kfTextGO.transform.GetChild(1).GetChild(0).GetComponent<TextMeshProUGUI>().color = killerColor;
-        }       
+        }
         kfTextGO.transform.GetChild(1).GetChild(2).GetComponent<Image>().sprite = weaponIcon[fixedWeapon];
         kfTextGO.transform.GetChild(1).GetChild(4).GetComponent<TextMeshProUGUI>().text = cutVictimName;
         if (swapKFColors.isOn)
@@ -112,18 +154,18 @@ public class KF_Manager : MonoBehaviour
         {
             kfTextGO.transform.GetChild(1).GetChild(4).GetComponent<TextMeshProUGUI>().color = victimColor;
         }
-        
+
 
         // if its a headshot make the gun red
         if (data.Data.HeadShot)
         {
             kfTextGO.transform.GetChild(1).GetChild(2).GetComponent<Image>().color = Color.red;
 
-            for (int i = 0; i < mSB.playerNames.Length; i++)
+            for (int i = 0; i < mSB.pIG.Count; i++)
             {
-                if (mSB.playerNames[i] == data.Data.Killer)
+                if (mSB.pIG[i].Name == data.Data.Killer)
                 {
-                    mSB.currentHS[i]++;
+                    mSB.pIG[i].headShots++;
                 }
             }
         }
@@ -141,33 +183,31 @@ public class KF_Manager : MonoBehaviour
 
     public void CheckColors(string _killer, string _victim)
     {
-        int arraySize = mSB.playerNames.Length;
+        int arraySize = mSB.pIG.Count;
         //Debug.Log("Checking colors and the count is " + arraySize.ToString());
 
         for (int i = 0; i < arraySize; i++)
         {
-            if (mSB.playerNames[i] == _killer)
+            if (mSB.pIG[i].Name == _killer)
             {
                 //Debug.Log("killer = " + _killer + ", used a " + data.Data.WeaponsType.ToString());
-                if (i < 5)
+                if (mSB.pIG[i].Team == 0)
                 {
                     killerColor = colorRed;
                 }
-                if (i > 4)
+                if (mSB.pIG[i].Team == 1)
                 {
                     killerColor = colorBlue;
                 }
             }
-        }
-        for (int i = 0; i < arraySize; i++)
-        {
-            if (mSB.playerNames[i] == _victim)
+
+            if (mSB.pIG[i].Name == _victim)
             {
-                if (i < 5)
+                if (mSB.pIG[i].Team == 0)
                 {
                     victimColor = colorRed;
                 }
-                if (i > 4)
+                if (mSB.pIG[i].Team == 1)
                 {
                     victimColor = colorBlue;
                 }
@@ -222,9 +262,9 @@ public class KF_Manager : MonoBehaviour
         int playeri = 0;
         bool didSpawn = false;
         // check if player is streaking. If so, set the streaking parent to active
-        for (int i = 0; i < mSB.playerNames.Length; i++)
+        for (int i = 0; i < mSB.pIG.Count; i++)
         {
-            if (mSB.playerNames[i] == data.Data.Victum)
+            if (mSB.pIG[i].Name == data.Data.Victum)
             {
                 didSpawn = true;
                 deathBars[i].SetActive(true);
@@ -236,6 +276,6 @@ public class KF_Manager : MonoBehaviour
         {
             deathBars[playeri].SetActive(false);
             didSpawn = false;
-        }        
-    }    
+        }
+    }
 }

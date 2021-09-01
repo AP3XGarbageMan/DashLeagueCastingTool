@@ -8,57 +8,28 @@ public class SB_Manager : MonoBehaviour
     public Root data;
     public PopulateMainScoreboard pmsb;
 
-    public int[] previousKills = new int[10];
-    public int[] previousDeaths = new int[10];
-    public int[] currentKills = new int[10];
-    public int[] currentDeaths = new int[10];
-    public int[] currentScore = new int[10];
-    public int[] currentHS = new int[10];
-    public int[] teamList = new int[10];
-
     public int[] teamKills = new int[2];
     public int[] teamDeaths = new int[2];
     public int[] teamScore = new int[2];
     public int[] teamHS = new int[2];
     public int[] teamMapScore = new int[2];
 
-    public int[] currentKillStreak = new int[10];
-    public int[] highestKillStreak = new int[10];
-
     public float[] playerKD = new float[10];
     public float[] teamKD = new float[2];
 
-    public bool[] isDead = new bool[10];
-    public bool[] isStreaking = new bool[10];
+    public List<PlayersInGame> pIG = new List<PlayersInGame>();
 
-    public string[] playerNamesWithSpaces = new string[10];
-    public string[] playerNames = new string[10];
+    public bool sortingPlayers = false;
 
-    public string[] teamNames = new string[2];
+    private int startUpCount = 0;
 
     private void Start()
     {
         pmsb = pmsb.GetComponent<PopulateMainScoreboard>();
 
-        for (int i = 0; i < data.Data.Names.Length; i++)
+        for (int i = 0; i < 10; i++)
         {
-            previousKills[i] = 0;
-            previousDeaths[i] = 0;
-            currentKills[i] = 0;
-            currentDeaths[i] = 0;
-            currentScore[i] = 0;
-            currentHS[i] = 0;
-            teamList[i] = 0;
-            currentKillStreak[i] = 0;
-            highestKillStreak[i] = 0;
             playerKD[i] = 0;
-
-            isDead[i] = false;
-            isStreaking[i] = false;
-
-
-            playerNames[i] = "name";
-            playerNamesWithSpaces[i] = "name";
         }
         for (int i = 0; i < 2; i++)
         {
@@ -81,70 +52,36 @@ public class SB_Manager : MonoBehaviour
             teamScore[i] = 0;
         }
 
-        //Debug.Log("setting up previous data");
+        // Debug.Log("setting up previous data");
+        // also sets up team scores
         for (int i = 0; i < data.Data.Names.Length; i++)
         {
-            previousDeaths[i] = currentDeaths[i];
-            previousKills[i] = currentKills[i];
-        }
-        for (int i = 0; i < data.Data.Names.Length; i++)
-        {
-            currentKills[i] = data.Data.Kills[i];
-            currentDeaths[i] = data.Data.Deaths[i];
-            currentScore[i] = data.Data.Scores[i];
-            teamList[i] = data.Data.Teams[i];
-        }
-        for (int i = 0; i < data.Data.Names.Length; i++)
-        {
+            // once we find the name, we add the victum to our has killed list
+            if (pIG[i].Name == data.Data.Names[i])
+            {
+                pIG[i].PreviousDeaths = pIG[i].Deaths;
+                pIG[i].PreviousKills = pIG[i].Kills;
+            }
+
             if (data.Data.Teams[i] == 0)
             {
-                teamKills[0] += data.Data.Kills[i];
-                teamDeaths[0] += data.Data.Deaths[i];
-                teamHS[0] += currentHS[i];
-                teamScore[0] += currentScore[i];
+                teamKills[0] += pIG[i].Kills;
+                teamDeaths[0] += pIG[i].Deaths;
+                teamHS[0] += pIG[i].headShots;
+                teamScore[0] += pIG[i].Score;
             }
             if (data.Data.Teams[i] == 1)
             {
-                teamKills[1] += data.Data.Kills[i];
-                teamDeaths[1] += data.Data.Deaths[i];
-                teamHS[1] += currentHS[i];
-                teamScore[1] += currentScore[i];
+                teamKills[1] += pIG[i].Kills;
+                teamDeaths[1] += pIG[i].Deaths;
+                teamHS[1] += pIG[i].headShots;
+                teamScore[1] += pIG[i].Score;
             }
         }
 
-        for (int i = 0; i < data.Data.Names.Length; i++)
+        if (sortingPlayers)
         {
-            playerNames[i] = data.Data.Names[i];
-            // setup for [team] [name name]
-            string[] splitNames = data.Data.Names[i].Split();
-
-            if (splitNames.Length > 1)
-            {
-                if (i < 5)
-                {
-                    teamNames[0] = splitNames[0];
-                }
-                // blue team
-                if (i > 4)
-                {
-                    teamNames[1] = splitNames[0];
-                }
-
-
-                // [name with spaces] setup
-                string nameWithSpaces = "";
-                for (int j = 1; j < splitNames.Length; j++)
-                {
-                    nameWithSpaces += splitNames[j];
-                }
-
-                playerNamesWithSpaces[i] = nameWithSpaces;
-            }
-            else
-            {
-                playerNamesWithSpaces[i] = data.Data.Names[i];
-
-            }
+            PutPlayerDataWhereItShouldBe();
         }
 
         Debug.Log("calculate kd");
@@ -152,13 +89,113 @@ public class SB_Manager : MonoBehaviour
         Debug.Log("calculate ks");
         CheckIfOnStreak();
     }
+    public void SetInitialScoreBoard()
+    {
+        Debug.Log("setting up sb");
+        startUpCount++;
+        if (startUpCount == 1)
+        {
+            for (int i = 0; i < data.Data.Names.Length; i++)
+            {
+                pIG.Add(new PlayersInGame(data.Data.Names[i], data.Data.Teams[i], data.Data.Scores[i], data.Data.Kills[i], data.Data.Deaths[i]));
+            }
+
+            startUpCount++;
+        }
+
+        // cut down names
+        SetupPlayerTeamShortNames();
+
+        sortingPlayers = true;
+    }
+
+    public void SetupPlayerTeamShortNames()
+    {
+        // put red first
+        for (int i = 0; i < data.Data.Names.Length; i++)
+        {
+            if (data.Data.Teams[i] == 0)
+            {
+                // setup for [team] [name name]
+                string[] splitNames = pIG[i].Name.Split();
+
+                if (splitNames.Length > 1)
+                {
+                    if (pIG[i].Team == 0)
+                    {
+                        pIG[i].TeamName = splitNames[0];
+                    }
+
+                    // [name with spaces] setup
+                    string nameWithSpaces = "";
+                    for (int j = 1; j < splitNames.Length; j++)
+                    {
+                        nameWithSpaces += splitNames[j];
+                    }
+
+                    pIG[i].ShortName = nameWithSpaces;
+                }
+                else
+                {
+                    pIG[i].ShortName = data.Data.Names[i];
+
+                }
+            }
+            // then blue
+            if (data.Data.Teams[i] == 1)
+            {
+                // setup for [team] [name name]
+                string[] splitNames = pIG[i].Name.Split();
+
+                if (splitNames.Length > 1)
+                {
+                    if (pIG[i].Team == 1)
+                    {
+                        pIG[i].TeamName = splitNames[0];
+                    }
+
+                    // [name with spaces] setup
+                    string nameWithSpaces = "";
+                    for (int j = 1; j < splitNames.Length; j++)
+                    {
+                        nameWithSpaces += splitNames[j];
+                    }
+
+                    pIG[i].ShortName = nameWithSpaces;
+                }
+                else
+                {
+                    pIG[i].ShortName = data.Data.Names[i];
+
+                }
+            }
+        }
+    }
+
+    public void PutPlayerDataWhereItShouldBe()
+    {
+        for (int i = 0; i < pIG.Count; i++)
+        {
+            for (int j = 0; j < pIG.Count; j++)
+            {
+                if (pIG[i].Name == data.Data.Names[j])
+                {
+                    pIG[i].Kills = data.Data.Kills[j];
+                    pIG[i].Deaths = data.Data.Deaths[j];
+                    pIG[i].Score = data.Data.Scores[j];
+                    pIG[i].Team = data.Data.Teams[j];
+                }
+            }
+        }
+    }
 
     public void CalculateKD()
     {
-        for (int i = 0; i < data.Data.Names.Length; i++)
+        for (int i = 0; i < pIG.Count; i++)
         {
-            float k = currentKills[i];
-            float d = currentDeaths[i];
+            float k = pIG[i].Kills;
+            float d = pIG[i].Deaths;
+
             if (k != 0 && d != 0)
             {
                 playerKD[i] = (k / d);
@@ -187,23 +224,25 @@ public class SB_Manager : MonoBehaviour
     public void CheckIfOnStreak()
     {
         // check if a player died. If so set kill streak to 0 and turn off bool for streaking
-        for (int i = 0; i < currentKills.Length; i++)
+        for (int i = 0; i < pIG.Count; i++)
         {
-            if (currentDeaths[i] > previousDeaths[i])
+            // died
+            if (pIG[i].Deaths > pIG[i].PreviousDeaths)
             {
-                isDead[i] = true;
-                currentKillStreak[i] = 0;
-                isStreaking[i] = false;
+                pIG[i].isDead = true;
+                pIG[i].CurrentKillStreak = 0;
+                pIG[i].isStreaking = false;
             }
-            if (currentKills[i] > previousKills[i])
+            // got a kill
+            if (pIG[i].Kills > pIG[i].PreviousKills)
             {
-                int math = (currentKillStreak[i] + (currentKills[i] - previousKills[i]));
+                int math = (pIG[i].CurrentKillStreak + (pIG[i].Kills - pIG[i].PreviousKills));
 
-                currentKillStreak[i] = math;
+                pIG[i].CurrentKillStreak = math;
 
-                if (currentKillStreak[i] > 2)
+                if (pIG[i].CurrentKillStreak > 2)
                 {
-                    isStreaking[i] = true;
+                    pIG[i].isStreaking = true;
                 }
             }
             SetHighKillStreak(i);
@@ -213,33 +252,20 @@ public class SB_Manager : MonoBehaviour
     // check if streaking, set high ks
     public void SetHighKillStreak(int _i)
     {
-        if (isStreaking[_i])
+        if (pIG[_i].isStreaking)
         {
-            if (currentKillStreak[_i] > highestKillStreak[_i])
+            if (pIG[_i].CurrentKillStreak > pIG[_i].HighestKillStreak)
             {
-                highestKillStreak[_i] = currentKillStreak[_i];
+                pIG[_i].HighestKillStreak = pIG[_i].CurrentKillStreak;
             }
         }
     }
 
     public void ResetData()
     {
-
         for (int i = 0; i < data.Data.Names.Length; i++)
         {
-            previousKills[i] = 0;
-            previousDeaths[i] = 0;
-            currentKills[i] = 0;
-            currentDeaths[i] = 0;
-            currentScore[i] = 0;
-            currentHS[i] = 0;
-            teamList[i] = 0;
-            currentKillStreak[i] = 0;
-            highestKillStreak[i] = 0;
             playerKD[i] = 0;
-
-            isDead[i] = false;
-            isStreaking[i] = false;
         }
         for (int i = 0; i < 2; i++)
         {
@@ -250,5 +276,11 @@ public class SB_Manager : MonoBehaviour
             teamScore[i] = 0;
             teamMapScore[i] = 0;
         }
+
+        pIG.Clear();
+        sortingPlayers = false;
+        startUpCount = 0;
     }
 }
+
+
