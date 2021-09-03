@@ -2,6 +2,7 @@ using UnityEngine.UI;
 using UnityEngine;
 using TMPro;
 using System.IO;
+using System.Collections.Generic;
 
 public class WriterManager : MonoBehaviour
 {
@@ -9,91 +10,97 @@ public class WriterManager : MonoBehaviour
     public SB_Manager mSB;
 
     [SerializeField]
-    public Toggle wdToggle;
-    [SerializeField]
-    public Toggle wdwkwToggle;
-    [SerializeField]
-    public Toggle wdwkbwToggle;
-    [SerializeField]
     public TextMeshProUGUI pathTMP;
+    [SerializeField]
+    public TextMeshProUGUI dropDownText;
+    [SerializeField]
+    public TextMeshProUGUI playerLabelText;
+    [SerializeField]
+    public TextMeshProUGUI[] graphLabelText;
+    public TextMeshProUGUI[] playerDeathsLabel;
 
+    public List<List<int>> hasKilledList = new List<List<int>>();
+
+    public GameObject[] dataBars;
+
+    public GameObject miniMapParent;
+    public GameObject ktParent;
+
+    public Toggle swapMiniKT;
 
     private void Start()
     {
         mSB = mSB.GetComponent<SB_Manager>();
     }
 
-    //public void WriteData()
-    //{
-    //    if (wdToggle.isOn)
-    //    {
-    //        StreamWriter sw = new StreamWriter(pathTMP.text);
-
-    //        for (int i = 0; i < data.Data.Names.Length; i++)
-    //        {
-    //            sw.WriteLine(data.Data.Names[i] + "," + data.Data.Teams[i] + "," + data.Data.Kills[i] + "," + data.Data.Deaths[i]);
-    //        }
-           
-    //        sw.Close();
-    //    }
-    //}
-
-    public void WriteIt()
+    private void Update()
     {
-        if (wdwkwToggle.isOn)
+        if (swapMiniKT.isOn)
         {
-            WriteWhoKilledWho();
+            miniMapParent.SetActive(false);
+            ktParent.SetActive(true);
+            CleanUpData();
+            PopulateBarGraph();
         }
-
-        if (wdwkbwToggle.isOn)
+        else
         {
-            WriteWhoWasKilledByWho();
+            ktParent.SetActive(false);
+            miniMapParent.SetActive(true);
         }
     }
-
-    public void WriteWhoKilledWho()
+    public void CleanUpData()
     {
-        if (wdwkwToggle.isOn)
+        if (hasKilledList != null)
         {
-            StreamWriter sw = new StreamWriter(pathTMP.text);
+            hasKilledList.Clear();
+        }
 
-            for (int i = 0; i < mSB.pIG.Count; i++)
+        for (int i = 0; i < mSB.pIG.Count; i++)
+        {
+            List<int> dataLine = new List<int>();
+            for (int j = 0; j < mSB.pIG.Count; j++)
             {
-                sw.WriteLine(mSB.pIG[i].Name);
-
-                string lineTwo = "";
-
-                foreach (string _killed in mSB.pIG[i].hasKilled)
+                int killCount = 0;
+                foreach (string _victim in mSB.pIG[i].hasKilled)
                 {
-                    lineTwo += _killed + ", ";
+                    // add the killer first
+                    if (mSB.pIG[j].ShortName == _victim)
+                    {
+                        killCount++;
+                    }
                 }
-                sw.WriteLine(lineTwo);
+                dataLine.Add(killCount);
             }
-            sw.Close();
-            wdwkwToggle.isOn = false;
+            hasKilledList.Add(dataLine);
+            //Debug.Log(toPrint);
         }
     }
 
-    public void WriteWhoWasKilledByWho()
+    public void PopulateBarGraph()
     {
-        if (wdwkbwToggle.isOn)
+        // get the player we are interested in
+        string selPlayer = dropDownText.text;
+        playerLabelText.text = selPlayer;
+
+        // loop though player short names until we find the player we care about
+        for (int i = 0; i < mSB.pIG.Count; i++)
         {
-            StreamWriter sw = new StreamWriter(pathTMP.text);
+            graphLabelText[i].text = mSB.pIG[i].ShortName;
 
-            for (int i = 0; i < mSB.pIG.Count; i++)
+            if (mSB.pIG[i].ShortName == selPlayer)
             {
-                sw.WriteLine(mSB.pIG[i].Name);
+                List<int> newList = new List<int>();
+                newList = hasKilledList[i];
 
-                string lineTwo = "";
-
-                foreach (string _kb in mSB.pIG[i].killedBy)
+                // make each bar bigger based on kill count
+                for (int j = 0; j < mSB.pIG.Count; j++)
                 {
-                    lineTwo += _kb + ", ";
+                    playerDeathsLabel[j].text = newList[j].ToString();
                 }
-                sw.WriteLine(lineTwo);
+
             }
-            sw.Close();
-            wdwkbwToggle.isOn = false;
         }
     }
+
+
 }

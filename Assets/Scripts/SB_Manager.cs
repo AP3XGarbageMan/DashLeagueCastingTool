@@ -8,6 +8,8 @@ public class SB_Manager : MonoBehaviour
     public Root data;
     public PopulateMainScoreboard pmsb;
 
+    public TMP_Dropdown playerDropDown;
+
     public int[] teamKills = new int[2];
     public int[] teamDeaths = new int[2];
     public int[] teamScore = new int[2];
@@ -18,6 +20,8 @@ public class SB_Manager : MonoBehaviour
     public float[] teamKD = new float[2];
 
     public List<PlayersInGame> pIG = new List<PlayersInGame>();
+    public List<string> playerNamesDropDown = new List<string>();
+
 
     public bool sortingPlayers = false;
 
@@ -97,7 +101,13 @@ public class SB_Manager : MonoBehaviour
         {
             for (int i = 0; i < data.Data.Names.Length; i++)
             {
+                if (data.Data.Teams[i] == 0)
                 pIG.Add(new PlayersInGame(data.Data.Names[i], data.Data.Teams[i], data.Data.Scores[i], data.Data.Kills[i], data.Data.Deaths[i]));
+            }
+            for (int i = 0; i < data.Data.Names.Length; i++)
+            {
+                if (data.Data.Teams[i] == 1)
+                    pIG.Add(new PlayersInGame(data.Data.Names[i], data.Data.Teams[i], data.Data.Scores[i], data.Data.Kills[i], data.Data.Deaths[i]));
             }
 
             startUpCount++;
@@ -170,6 +180,13 @@ public class SB_Manager : MonoBehaviour
                 }
             }
         }
+
+        for (int i = 0; i < pIG.Count; i++)
+        {
+            playerNamesDropDown.Add(pIG[i].ShortName);
+        }
+        playerDropDown.AddOptions(playerNamesDropDown);
+
     }
 
     public void PutPlayerDataWhereItShouldBe()
