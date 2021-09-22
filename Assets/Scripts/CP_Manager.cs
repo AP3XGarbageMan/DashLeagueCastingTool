@@ -47,11 +47,5 @@ public class CP_Manager : MonoBehaviour
 
     }
 
-    public void GoToMainMenu()
-    {
-        ss.stopListening();
-        SceneManager.LoadScene(1);
-
-    }
 }
 

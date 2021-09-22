@@ -23,20 +23,20 @@ public class ChangeMMColors : MonoBehaviour
     public void DominationUpdateMM(Root _data)
     {
         Debug.Log("I am base " + this.gameObject.name + "and the button value is: " + mD.domButtonValue[buttonArrayInt].ToString() );
-        //switch (mD.domButtonValue[buttonArrayInt])
-        //{
-        //    case -1:
-        //        this.GetComponent<MeshRenderer>().material.color = Color.white;
-        //        currentIntAtButton = -1;
-        //        break;
-        //    case 0:
-        //        this.GetComponent<MeshRenderer>().material.color = colorRed;
-        //        currentIntAtButton = 0;
-        //        break;
-        //    case 1:
-        //        this.GetComponent<MeshRenderer>().material.color = colorBlue;
-        //        currentIntAtButton = 1;
-        //        break;
-        //}
+        switch (mD.domButtonValue[buttonArrayInt])
+        {
+            case -1:
+                this.GetComponent<MeshRenderer>().material.color = Color.white;
+                currentIntAtButton = -1;
+                break;
+            case 0:
+                this.GetComponent<MeshRenderer>().material.color = colorRed;
+                currentIntAtButton = 0;
+                break;
+            case 1:
+                this.GetComponent<MeshRenderer>().material.color = colorBlue;
+                currentIntAtButton = 1;
+                break;
+        }
     }
 }

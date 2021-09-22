@@ -28,6 +28,8 @@ public class PlayerStatData
     public int headShots;
     public int CurrentKillStreak;
     public int HighestKillStreak;
+    public int totalButtonTaps;
+    public int countDownsStarted;
 
     public bool isStreaking;
     public bool isDead;
@@ -46,6 +48,8 @@ public class PlayerStatData
         PreviousKills = 0;
         CurrentKillStreak = 0;
         HighestKillStreak = 0;
+        totalButtonTaps = 0;
+        countDownsStarted = 0;
 
         hasKilled.Add(" ");
         killedBy.Add(" ");

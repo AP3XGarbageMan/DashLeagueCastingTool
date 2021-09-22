@@ -21,6 +21,7 @@ public class SocketServer : MonoBehaviour
 
     // These events can be sub to. so the socketserver doesn't need to know what to call 
     public static event Action<Root> KillFeedEvent;
+    public static event Action<Root> KFEvent;
     public static event Action<Root> StartEvent; 
     public static event Action<Root> ScoreBoardEvent;
     public static event Action<Root> PlayerPosEvent; 
@@ -121,7 +122,7 @@ public class SocketServer : MonoBehaviour
         switch (data.Type)
         {
             case "Start": StartEvent?.Invoke(data); break;
-            case "Dead": KillFeedEvent?.Invoke(data); break;
+            case "Dead": KFEvent?.Invoke(data); break;
             case "PP": PlayerPosEvent?.Invoke(data); break;
             case "ScoreBoard": ScoreBoardEvent?.Invoke(data); break;
             case "Payload": PayloadEvent?.Invoke(data); break;

@@ -46,6 +46,8 @@ public class PopulateMainScoreboard : MonoBehaviour
 
     [SerializeField]
     private TextMeshProUGUI[] teamButtonTapsTMP;
+    [SerializeField]
+    private TextMeshProUGUI[] teamCountDownsTMP;
 
     [SerializeField] 
     private TextMeshProUGUI[] teamTopPanelScore;
@@ -184,6 +186,8 @@ public class PopulateMainScoreboard : MonoBehaviour
         {
             teamButtonTapsTMP[0].text = mD.buttontaps[0].ToString();
             teamButtonTapsTMP[1].text = mD.buttontaps[1].ToString();
+            teamCountDownsTMP[0].text = mD.redCountDowns.ToString();
+            teamCountDownsTMP[1].text = mD.blueCountDowns.ToString();
         }
     }
 }

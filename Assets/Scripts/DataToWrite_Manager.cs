@@ -292,7 +292,8 @@ public class DataToWrite_Manager : MonoBehaviour
         // start with each player as i
         for (int i = 0; i < mSB.playerName.Length; i++)
         {
-            sw.WriteLine(mSB.pIG[i].TeamName + ", " + mSB.pIG[i].ShortName + ", " + mSB.pIG[i].Team + ", " + mSB.pIG[i].Kills.ToString() + ", " + mSB.pIG[i].Deaths.ToString() + ", " + mSB.pIG[i].Score.ToString() + ", " + mSB.pIG[i].headShots.ToString());
+            sw.WriteLine(mSB.pIG[i].TeamName + ", " + mSB.pIG[i].ShortName + ", " + mSB.pIG[i].Team + ", " + mSB.pIG[i].Kills.ToString() + ", " + mSB.pIG[i].Deaths.ToString() + 
+                ", " + mSB.pIG[i].Score.ToString() + ", " + mSB.pIG[i].headShots.ToString() + ", " + mSB.pIG[i].totalButtonTaps.ToString() + ", " + mSB.pIG[i].countDownsStarted.ToString());
         }
 
         sw.Close();

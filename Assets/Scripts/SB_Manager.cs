@@ -48,6 +48,7 @@ public class SB_Manager : MonoBehaviour
     public List<PlayerStatData> pIG = new List<PlayerStatData>();
     public List<ScoreTrackingStats> scoreStatsRed = new List<ScoreTrackingStats>();
     public List<ScoreTrackingStats> scoreStatsBlue = new List<ScoreTrackingStats>();
+    public List<DominationBUttonStats> dBS = new List<DominationBUttonStats>();
 
     public List<string> playerNamesDropDown = new List<string>();
 

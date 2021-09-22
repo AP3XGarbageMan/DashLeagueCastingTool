@@ -29,3 +29,18 @@ public class ScoreTrackingStats
         Score = _score;
     }
 }
+
+[Serializable]
+public class DominationBUttonStats
+{
+    public string name = "";
+    public int cd = 0;
+    public int bt = 0;
+
+    public DominationBUttonStats(string _name, int _bt, int _cd) //, string _hk, string _kb)
+    {
+        name = _name;
+        bt = _bt;
+        cd = _cd;
+    }
+}

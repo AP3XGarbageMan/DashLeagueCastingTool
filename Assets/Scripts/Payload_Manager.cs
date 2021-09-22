@@ -24,6 +24,8 @@ public class Payload_Manager : MonoBehaviour
     public int poc = 0;
 
     public bool isPayload;
+    public bool isCanyon;
+    public bool isLP;
 
     public static event Action<Root> PayloadUpdateOut;
     public static event Action<Root> PayloadUpdateCartGraphOut;

@@ -4,6 +4,9 @@ using TMPro;
 
 public class MM_Manager : MonoBehaviour
 {
+    public Domination_Manager mD;
+    public Payload_Manager mP;
+
     [SerializeField]
     private GameObject mmWW;
     [SerializeField]
@@ -30,6 +33,12 @@ public class MM_Manager : MonoBehaviour
     [SerializeField]
     private TextMeshProUGUI mapNameProgressGraph;
 
+    private void Start()
+    {
+        mD = mD.GetComponent<Domination_Manager>();
+        mP = mP.GetComponent<Payload_Manager>();
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -37,24 +46,28 @@ public class MM_Manager : MonoBehaviour
         {
             TurnOffAllMMMaps();
             TurnOnMM("Waterway");
+            mD.isWW = true;
             mapNameProgressGraph.text = "Waterway";
         }
         if (mmQuarryToggle.isOn)
         {
             TurnOffAllMMMaps();
             TurnOnMM("Quarry");
+            mD.isQuarry = true;
             mapNameProgressGraph.text = "Quarry";
         }
         if (mmCanyonToggle.isOn)
         {
             TurnOffAllMMMaps();
             TurnOnMM("Canyon");
+            mP.isCanyon = true;
             mapNameProgressGraph.text = "Canyon";
         }
         if (mmLPToggle.isOn)
         {
             TurnOffAllMMMaps();
             TurnOnMM("Launchpad");
+            mP.isLP = true;
             mapNameProgressGraph.text = "Launchpad";
         }
         if (mmStadiumToggle.isOn)
